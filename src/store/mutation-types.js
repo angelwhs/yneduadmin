@@ -1,0 +1,11 @@
+export const SET_USER_TOKEN= 'SET_USER_TOKEN';
+
+export const SET_USER_NICKNAME = 'SET_USER_NICKNAME';
+
+export const SET_USER_MOBILE = 'SET_USER_MOBILE';
+
+export const SET_USER_HEADIMGURL = 'SET_USER_HEADIMGURL';
+
+export const SET_USER_ACCOUNT = 'SET_USER_ACCOUNT';
+
+export const SET_USER_MENUS = 'SET_USER_MENUS';
