@@ -335,7 +335,7 @@
 
                 <!--选择图片-->
                 <picture-selector :isShow="imgSelectorSetting.show" v-on:on-show-change="pictureSelectorShowChange"
-                    :multiple="false" :pictureField="imgSelectorSetting.pictureField"
+                    :multiple="false" :pictureField="imgSelectorSetting.pictureField" platformName="cms"
                     :pictureUrlField="imgSelectorSetting.pictureUrlField" v-on:on-confirm="pictureSelectorConfirm">
                 </picture-selector>
             </v-dialog>
@@ -526,7 +526,7 @@
                         this.searchResult.totalCount = data.result.TotalCount;
 
                         this.searchResult.list = data.result.Data;
-                        console.log(data.result.Data);
+                        //console.log(data.result.Data);
                     } else {
 
                     }

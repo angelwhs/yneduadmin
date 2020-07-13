@@ -1,5 +1,5 @@
 <template>
-    <div id="pageUserAccount" class="page-wrapper">
+    <div id="pageArticleTag" class="page-wrapper">
         <v-container grid-list-xl fluid>
             <!--查询条件-->
             <div>
@@ -15,6 +15,7 @@
                     </v-row>
                 </v-card>
             </div>
+
 
             <!--查询结果-->
             <div class="my-auto">
@@ -33,9 +34,8 @@
                             <thead>
                                 <tr>
                                     <th class="text-left">Id</th>
-                                    <th class="text-left">账号</th>
-                                    <th class="text-left">昵称</th>
-                                    <th class="text-left">角色</th>
+                                    <th class="text-left">名称</th>
+                                    <th class="text-left">审核状态</th>
                                     <th class="text-left">状态</th>
                                     <th class="text-left">操作</th>
                                 </tr>
@@ -44,15 +44,8 @@
                                 <template v-if="searchResult.list && searchResult.list.length > 0">
                                     <tr v-for="item in searchResult.list" :key="item.Id">
                                         <td>{{ item.Id }}</td>
-                                        <td>{{ item.Account }}</td>
-                                        <td>{{ item.UserNickName }}</td>
-                                        <td>
-                                            <v-chip-group v-if="item.Roles && item.Roles.length > 0" column >
-                                                <v-chip v-for="role in item.Roles" :key="role.Id" small>
-                                                    {{ role.Title }}
-                                                  </v-chip>
-                                            </v-chip-group>
-                                        </td>
+                                        <td>{{ item.Title }}</td>
+                                        <td>{{ getStatusName(item.Status) }}</td>
                                         <td>
                                             <v-icon size="20" v-if="!item.Enable" @click="confirmSetEnable(item)"
                                                 color="red lighten-2">
@@ -64,6 +57,9 @@
                                             </v-icon>
                                         </td>
                                         <td>
+                                            <v-btn small outlined color="primary" class="mr-4" @click="gotoDepartmentList(item)">
+                                                部门
+                                            </v-btn>
                                             <v-icon size="20" class="mr-4" @click="openEdit(item)">
                                                 edit
                                             </v-icon>
@@ -89,79 +85,100 @@
             </div>
 
             <!--创建/更新-->
-            <v-dialog v-model="updateDialog.isShow" max-width="800px" persistent :disabled="saveLoading">
+            <v-dialog v-model="updateDialog.isShow" persistent fullscreen hide-overlay transition="dialog-bottom-transition">
                 <v-card ref="form">
-                    <v-card-title>
-                        <span class="headline mr-4">{{updateItem.Id === 0 ? '新建' : '编辑'}}</span><span>账号</span>
-                    </v-card-title>
+                    <v-toolbar dark color="primary">
+                        <v-btn icon dark @click="updateDialog.isShow = false">
+                            <v-icon>mdi-close</v-icon>
+                        </v-btn>
+                        <v-toolbar-title>
+                            <span class="headline mr-4">{{updateItem.Id === 0 ? '新建' : '编辑'}}</span>
+                            <span>机构</span>
+                        </v-toolbar-title>
+                        <v-spacer></v-spacer>
+                        <v-toolbar-items>
+                            <v-btn class="title" dark text @click="saveUpdate">保存</v-btn>
+                        </v-toolbar-items>
+                    </v-toolbar>
 
                     <v-card-text>
                         <v-container>
                             <v-row>
-                                <v-col cols="12" md="6">
-                                    <v-text-field v-model="updateItem.Account" label="账号" dense
-                                        :rules="[() => !!updateItem.Account || '不能为空.']" :error-messages="errorMessages"
-                                        ref="Entity_Account">
+                                <v-col cols="12" md="9">
+                                    <v-text-field v-model="updateItem.Title" dense label="名称" placeholder="请输入机构名称"
+                                        :rules="[() => !!updateItem.Title || '不能为空.']" :error-messages="errorMessages"
+                                        ref="Entity_Title">
                                     </v-text-field>
                                 </v-col>
-                                <v-col cols="12" md="6">
-                                    <v-text-field v-model="updateItem.Password" label="密码" dense :type="'password'"
-                                        :rules="[() => !!updateItem.Password || '不能为空.']" :error-messages="errorMessages"
-                                        ref="Entity_Password">
-                                    </v-text-field>
-                                </v-col>
-                            </v-row>
-                            <v-row>
-                                <v-col cols="12" md="6">
-                                    <v-text-field v-model="updateItem.Name" label="真实姓名" dense
-                                        :error-messages="errorMessages"
-                                        ref="Entity_Name">
-                                    </v-text-field>
-                                </v-col>
-                                <v-col cols="12" md="6">
-                                    <v-text-field v-model="updateItem.NickName" label="昵称" dense
-                                         :error-messages="errorMessages"
-                                        ref="Entity_NickName">
-                                    </v-text-field>
-                                </v-col>
-                            </v-row>
-                            <v-row>
-                                <v-col cols="12" md="6">
-                                    <v-select :items="sexModel" label="性别" v-model="updateItem.Sex" dense item-text="Name" item-value="Id">
-
-                                    </v-select>
-                                </v-col>
-                                <v-col cols="12" md="6">
-                                    <v-text-field v-model="updateItem.Tel1" label="电话" dense
-                                        :error-messages="errorMessages"
-                                        ref="Entity_Tel1">
-                                    </v-text-field>
+                                <v-col cols="12" md="3">
+                                    <v-select :items="statusList" dense label="审核状态" item-text="Name" item-value="Id" placeholder="请选择审核状态"
+                                    v-model="updateItem.Status"></v-select>
                                 </v-col>
                             </v-row>
                             <v-row>
                                 <v-col cols="12" md="12">
-                                    <v-select :items="roleModel" label="角色" dense item-text="Title" item-value="Id" v-model="updateItem.Roles"
-                                    multiple chips return-object>
+                                    <v-card outlined class="pr-4 pl-4 pb-4">
+                                        <v-card-title>
+                                            封面
+                                        </v-card-title>
+                                        <template>
+                                            <template
+                                                v-if="updateItem.ImageThumb_PictureUrl && updateItem.ImageThumb_PictureUrl !== ''">
+                                                <v-img width="100%" height="200" contain
+                                                    :src="updateItem.ImageThumb_PictureUrl" aspect-ratio="1"
+                                                    ref="Entity_ImageThumb_PictureUrl">
+                                                </v-img>
+                                            </template>
+                                            <template v-else>
+                                                <div class="d-flex justify-center align-center"
+                                                    style="width: 100%; height: 200px;">
+                                                    <span class="subtitle-1">请选择图片</span>
+                                                </div>
+                                            </template>
+                                            <input type="hidden" v-model="updateItem.ImageThumb_PictureId"
+                                                ref="Entity_ImageThumb_PictureId" />
+                                            <div class="d-flex justify-center mt-2">
+                                                <v-btn
+                                                    @click="pictureSelectorShow('ImageThumb_PictureId', 'ImageThumb_PictureUrl')"
+                                                    class="mr-12" small color="light-blue darken-1" dark>
+                                                    选择图片
+                                                </v-btn>
+                                                <v-btn
+                                                    @click="updateItem.ImageThumb_PictureId=0;updateItem.ImageThumb_PictureUrl=''"
+                                                    small color="light-blue darken-1" dark>
+                                                    删除图片
+                                                </v-btn>
+                                            </div>
+                                        </template>
 
-                                    </v-select>
+                                    </v-card>
                                 </v-col>
+
                             </v-row>
                             <v-row>
-                                <v-col cols="12" md="12">
-                                    <v-switch v-model="updateItem.Enable" label="是否启用" dense></v-switch>
+                                <v-col cols="12" md="4">
+                                    <v-switch v-model="updateItem.Enable" label="是否启用"></v-switch>
                                 </v-col>
                             </v-row>
+                            <v-subheader class="mt-3">机构简介</v-subheader>
+                                <v-divider></v-divider>
+                            <v-row>
+                                <v-col cols="12" md="12">
+                                    <tinymce ref="editor" v-model="updateItem.Content" />
+                                </v-col>
+                            </v-row>
+
+                            
                         </v-container>
                     </v-card-text>
 
-                    <v-card-actions>
-                        <v-spacer></v-spacer>
-                        <v-btn color="blue darken-1" text @click="closeUpdate" :disabled="saveLoading">取消
-                        </v-btn>
-                        <v-btn color="primary" @click="saveUpdate" :loading="saveLoading" :disabled="saveLoading">
-                            保存</v-btn>
-                    </v-card-actions>
                 </v-card>
+
+                <!--选择图片-->
+                <picture-selector :isShow="imgSelectorSetting.show" v-on:on-show-change="pictureSelectorShowChange"
+                    :multiple="false" :pictureField="imgSelectorSetting.pictureField" platformName="course"
+                    :pictureUrlField="imgSelectorSetting.pictureUrlField" v-on:on-confirm="pictureSelectorConfirm">
+                </picture-selector>
             </v-dialog>
 
             <!--删除-->
@@ -170,8 +187,8 @@
                     <v-card-title class="headline"><span class="red--text">警告</span></v-card-title>
                     <v-card-text>
                         <p class="mb-1 subtitle-1 font-weight-bold">是否删除该项目?</p>
-                        <p class="mb-1">账号：{{updateItem.Account}}</p>
-                        <p class="mb-1">昵称：{{updateItem.UserNickName}}</p>
+                        <p class="mb-1">名称：{{updateItem.Name}}</p>
+                        <p class="mb-1">描述：{{updateItem.Description}}</p>
                     </v-card-text>
                     <v-card-actions>
                         <v-spacer></v-spacer>
@@ -188,8 +205,8 @@
                     <v-card-text>
                         <p v-if="updateItem.Enable" class="mb-1 subtitle-1 font-weight-bold">是否禁用该项目?</p>
                         <p v-else class="mb-1 subtitle-1 font-weight-bold">是否启用该项目?</p>
-                        <p class="mb-1">账号：{{updateItem.Account}}</p>
-                        <p class="mb-1">昵称：{{updateItem.UserNickName}}</p>
+                        <p class="mb-1">名称：{{updateItem.Name}}</p>
+                        <p class="mb-1">描述：{{updateItem.Description}}</p>
                     </v-card-text>
                     <v-card-actions>
                         <v-spacer></v-spacer>
@@ -210,13 +227,21 @@
                     </v-card-text>
                 </v-card>
             </v-dialog>
-
         </v-container>
     </div>
 </template>
 
 <script>
+    import tinymce from '../../components/common/TinyMce.vue';
+    import PictureSelector from '../../components/common/PictureSelector.vue';
+    import { AuditStatus, GetAuditStatusName } from '../../global/globalValue.js';
+
     export default {
+        components: {
+            tinymce,
+            PictureSelector,
+        },
+
         data() {
             return {
                 searchModel: {
@@ -244,17 +269,14 @@
                 updateItem: {
                     Id: 0,
                     Name: '',
-                    Account: '',
-                    NickName: '',
-                    Sex: 0,
-                    Tel1: '',
-                    HeadImgurl: '',
-                    UserNickName: '',
-                    Password: '',
                     Enable: true,
-                    UserType: 1,
-                    IsSystemAccount: false,
-                    Roles: [],
+                    Title: '',
+                    Description: '',
+                    Content: '',
+                    ImageThumb_PictureId: 0,
+                    ParentId: 0,
+                    ImageThumb_PictureUrl: '',
+                    Status: 1,
                 },
 
                 updateDialog: {
@@ -270,18 +292,19 @@
                 deleteDialog: false,
                 setEnableDialog: false,
 
-                sexModel: [
-                    { Id:0, Name:'保密' },
-                    { Id:1, Name:'男' },
-                    { Id:2, Name:'女' },
-                ],
+                //图片选择控件参数
+                imgSelectorSetting: {
+                    show: false,
+                    selectedPictures: [],
+                    pictureField: '',
+                    pictureUrlField: '',
+                },
 
-                roleModel: [],
+                statusList: AuditStatus,
             }
         },
 
         mounted() {
-            this.getRoles();
             this.search(0);
         },
 
@@ -289,7 +312,7 @@
             search: function (pageIndex) {
                 this.loadingDialog.isShow = true;
 
-                this.getAxios('/api/identity/backend/user/list', {
+                this.getAxios('/api/course/backend/company/list', {
                     searchName: this.searchModel.searchName,
                     pageIndex: pageIndex,
                     pageSize: this.searchResult.pageSize,
@@ -301,6 +324,8 @@
                         this.searchResult.totalCount = data.result.TotalCount;
 
                         this.searchResult.list = data.result.Data;
+
+                        //console.log(data.result.Data);
                     } else {
 
                     }
@@ -314,39 +339,33 @@
             prepareUpdateItem: function (item) {
                 this.updateItem.Id = item.Id;
                 this.updateItem.Name = item.Name;
-                this.updateItem.Account = item.Account;
-                this.updateItem.NickName = item.NickName;
-                this.updateItem.Sex = item.Sex;
-                this.updateItem.Tel1 = item.Tel1;
-                this.updateItem.HeadImgurl = item.HeadImgurl;
-                this.updateItem.UserNickName = item.UserNickName;
+                this.updateItem.Description = item.Description;
                 this.updateItem.Enable = item.Enable;
-                this.updateItem.Roles = item.Roles;
-                this.updateItem.Password = '******';
+                this.updateItem.Title = item.Title;
+                this.updateItem.Content = item.Content;
+                this.updateItem.ImageThumb_PictureId = item.ImageThumb_PictureId;
+                this.updateItem.ParentId = item.ParentId;
+                this.updateItem.ImageThumb_PictureUrl = item.ImageThumb_PictureUrl;
+                this.updateItem.Status = item.Status;
             },
 
             openCreate: function () {
                 this.updateItem.Id = 0;
                 this.updateItem.Name = '';
-                this.updateItem.Account = '';
-                this.updateItem.NickName = '';
-                this.updateItem.Sex = 0;
-                this.updateItem.Tel1 = '';
-                this.updateItem.HeadImgurl = '';
-                this.updateItem.UserNickName = '';
-                this.updateItem.Password = '';
+                this.updateItem.Description = '';
                 this.updateItem.Enable = true;
-                this.updateItem.Roles = [];
-
-                this.getRoles();
+                this.updateItem.Title = '';
+                this.updateItem.Content = '';
+                this.updateItem.ImageThumb_PictureId = 0;
+                this.updateItem.ParentId = 0;
+                this.updateItem.ImageThumb_PictureUrl = '';
+                this.updateItem.Status = 1;
 
                 this.updateDialog.isShow = true;
             },
 
             openEdit: function (item) {
                 this.prepareUpdateItem(item);
-
-                this.getRoles();
 
                 this.updateDialog.isShow = true;
             },
@@ -356,35 +375,35 @@
                 this.loadingDialog.isShow = true;
 
                 if (this.updateItem.Id === 0) {
-                    this.postAxios('/api/identity/backend/user/create', JSON.stringify(this.updateItem)).then((data) => {
+                    this.postAxios('/api/course/backend/company/create', JSON.stringify(this.updateItem)).then((data) => {
                         if (data.errorcode === 0) {
                             this.loadingDialog.isShow = false;
                             this.updateDialog.isShow = false;
-                            this.$toast.success('新增成功.', { x: 'right', y: 'bottom', timeout: 2000, showClose: true, });
+                            this.$toast.success('新增成功.', { x: 'center', y: 'top', timeout: 2000, showClose: true, });
                             this.search(0);
                         } else {
                             this.loadingDialog.isShow = false;
-                            this.$toast.error('新增失败,请重新提交.</br>' + data.errormsg, { x: 'right', y: 'bottom', timeout: 2000, showClose: true, });
+                            this.$toast.error('新增失败,请重新提交.</br>' + data.errormsg, { x: 'center', y: 'top', timeout: 2000, showClose: true, });
                             //console.log(data);
                         }
                     }).catch((error) => {
                         this.loadingDialog.isShow = false;
-                        this.$toast.error('新增失败,请重新提交.', { x: 'right', y: 'bottom', timeout: 2000, showClose: true, });
+                        this.$toast.error('新增失败,请重新提交.', { x: 'center', y: 'top', timeout: 2000, showClose: true, });
                     });
                 } else if (this.updateItem.Id > 0) {
-                    this.postAxios('/api/identity/backend/user/edit', JSON.stringify(this.updateItem)).then((data) => {
+                    this.postAxios('/api/course/backend/company/edit', JSON.stringify(this.updateItem)).then((data) => {
                         if (data.errorcode === 0) {
                             this.loadingDialog.isShow = false;
                             this.updateDialog.isShow = false;
-                            this.$toast.success('修改成功.', { x: 'right', y: 'bottom', timeout: 2000, showClose: true, });
+                            this.$toast.success('修改成功.', { x: 'center', y: 'top', timeout: 2000, showClose: true, });
                             this.search(0);
                         } else {
                             this.loadingDialog.isShow = false;
-                            this.$toast.error('修改失败,请重新提交.</br>' + data.errormsg, { x: 'right', y: 'bottom', timeout: 2000, showClose: true, });
+                            this.$toast.error('修改失败,请重新提交.</br>' + data.errormsg, { x: 'center', y: 'top', timeout: 2000, showClose: true, });
                         }
                     }).catch((error) => {
                         this.loadingDialog.isShow = false;
-                        this.$toast.error('新增失败,请重新提交.', { x: 'right', y: 'bottom', timeout: 2000, showClose: true, });
+                        this.$toast.error('新增失败,请重新提交.', { x: 'center', y: 'top', timeout: 2000, showClose: true, });
                     });
                 } else {
                     this.loadingDialog.isShow = false;
@@ -404,19 +423,19 @@
                 this.loadingDialog.message = '正在提交数据...';
                 this.loadingDialog.isShow = true;
 
-                this.getAxios('/api/identity/backend/user/delete', { id: this.updateItem.Id, }).then((data) => {
+                this.getAxios('/api/course/backend/company/delete', { id: this.updateItem.Id, }).then((data) => {
                     if (data.errorcode === 0) {
                         this.loadingDialog.isShow = false;
                         this.deleteDialog = false;
-                        this.$toast.success('删除成功.', { x: 'right', y: 'bottom', timeout: 2000, showClose: true, });
+                        this.$toast.success('删除成功.', { x: 'center', y: 'top', timeout: 2000, showClose: true, });
                         this.search(0);
                     } else {
                         this.loadingDialog.isShow = false;
-                        this.$toast.error('删除失败,请重新提交.</br>' + data.errormsg, { x: 'right', y: 'bottom', timeout: 2000, showClose: true, });
+                        this.$toast.error('删除失败,请重新提交.</br>' + data.errormsg, { x: 'center', y: 'top', timeout: 2000, showClose: true, });
                     }
                 }).catch((error) => {
                     this.loadingDialog.isShow = false;
-                    this.$toast.error('删除失败,请重新提交.</br>' + error.message, { x: 'right', y: 'bottom', timeout: 2000, showClose: true, });
+                    this.$toast.error('删除失败,请重新提交.</br>' + error.message, { x: 'center', y: 'top', timeout: 2000, showClose: true, });
                 });
             },
 
@@ -429,44 +448,59 @@
                 this.loadingDialog.message = '正在提交数据...';
                 this.loadingDialog.isShow = true;
 
-                this.getAxios('/api/identity/backend/user/setenable', { id: this.updateItem.Id, }).then((data) => {
+                this.getAxios('/api/course/backend/company/setenable', { id: this.updateItem.Id, }).then((data) => {
                     if (data.errorcode === 0) {
                         this.loadingDialog.isShow = false;
                         this.setEnableDialog = false;
-                        this.$toast.success(this.updateItem.Enable ? '禁用成功.' : '启用成功', { x: 'right', y: 'bottom', timeout: 2000, showClose: true, });
+                        this.$toast.success(this.updateItem.Enable ? '禁用成功.' : '启用成功', { x: 'center', y: 'top', timeout: 2000, showClose: true, });
                         this.search(0);
                     } else {
                         this.loadingDialog.isShow = false;
-                        this.$toast.error(this.updateItem.Enable ? '禁用失败,请重新提交.</br>' + data.errormsg : '启用失败,请重新提交.</br>' + data.errormsg, { x: 'right', y: 'bottom', timeout: 2000, showClose: true, });
+                        this.$toast.error(this.updateItem.Enable ? '禁用失败,请重新提交.</br>' + data.errormsg : '启用失败,请重新提交.</br>' + data.errormsg, { x: 'center', y: 'top', timeout: 2000, showClose: true, });
                     }
                 }).catch((error) => {
                     this.loadingDialog.isShow = false;
-                    this.$toast.error(this.updateItem.Enable ? '禁用失败,请重新提交.</br>' + error.message : '启用失败,请重新提交.</br>' + error.message, { x: 'right', y: 'bottom', timeout: 2000, showClose: true, });
+                    this.$toast.error(this.updateItem.Enable ? '禁用失败,请重新提交.</br>' + error.message : '启用失败,请重新提交.</br>' + error.message, { x: 'center', y: 'top', timeout: 2000, showClose: true, });
                 });
             },
 
-            getRoles: function() {
-                this.getAxios('/api/identity/backend/user/GetRoles').then((data) => {
-                    if(data.errorcode === 0) {
-                        //console.log(data.result);
-                        this.roleModel = data.result.Data;
-                    } else {
-
-                    }
-                }).catch((error) => {
-
-                });
+            //封面图片选择
+            pictureSelectorShowChange: function (val) {
+                this.imgSelectorSetting.show = val;
             },
 
-            getRolesName: function(roles) {
-                let name = '';
-                let isfirst = true;
-                if(roles && roles.length > 0) {
-                    roles.forEach((currentValue) => {
-                        name = name + '<v-chip></v-chip>'
-                    });
+            pictureSelectorShow: function (pictureField, pictureUrlField) {
+                this.imgSelectorSetting.pictureField = pictureField;
+                this.imgSelectorSetting.pictureUrlField = pictureUrlField;
+                this.imgSelectorSetting.show = true;
+            },
+
+            pictureSelectorConfirm: function (selectedItems, pictureField, pictureUrlField) {
+                if (!pictureField || pictureField === '' || !pictureUrlField || pictureUrlField === '') {
+                    return;
                 }
+                let selectItem = selectedItems[0];
+                // console.log(pictureUrlField);
+                // console.log(selectItem);
+                this.updateItem[pictureField] = selectItem.Id;
+                this.updateItem[pictureUrlField] = selectItem.ImageUrl;
             },
+
+            gotoDepartmentList: function (item) {
+                if (!item) {
+                    return;
+                }
+
+                this.$router.push({
+                    name: 'CourseDepartmentManage',
+                    params: { id: item.Id },
+                });
+            },
+
+            getStatusName: function(status) {
+                return GetAuditStatusName(status);
+            },
+
         },
     }
 </script>

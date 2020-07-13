@@ -1,6 +1,7 @@
 <template>
-    <div id="pageUserAccount" class="page-wrapper">
+    <div id="lessonCatetory" class="page-wrapper">
         <v-container grid-list-xl fluid>
+
             <!--查询条件-->
             <div>
                 <v-card class="mx-auto">
@@ -29,62 +30,41 @@
 
                     <!--结果表格-->
                     <div class="mt-4" id="searchResultTable">
-                        <v-simple-table fixed-header class="pl-4 pr-4">
-                            <thead>
-                                <tr>
-                                    <th class="text-left">Id</th>
-                                    <th class="text-left">账号</th>
-                                    <th class="text-left">昵称</th>
-                                    <th class="text-left">角色</th>
-                                    <th class="text-left">状态</th>
-                                    <th class="text-left">操作</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <template v-if="searchResult.list && searchResult.list.length > 0">
-                                    <tr v-for="item in searchResult.list" :key="item.Id">
-                                        <td>{{ item.Id }}</td>
-                                        <td>{{ item.Account }}</td>
-                                        <td>{{ item.UserNickName }}</td>
-                                        <td>
-                                            <v-chip-group v-if="item.Roles && item.Roles.length > 0" column >
-                                                <v-chip v-for="role in item.Roles" :key="role.Id" small>
-                                                    {{ role.Title }}
-                                                  </v-chip>
-                                            </v-chip-group>
-                                        </td>
-                                        <td>
-                                            <v-icon size="20" v-if="!item.Enable" @click="confirmSetEnable(item)"
-                                                color="red lighten-2">
-                                                mdi-cancel
-                                            </v-icon>
-                                            <v-icon size="20" v-else @click="confirmSetEnable(item)"
-                                                color="green lighten-2">
-                                                mdi-checkbox-marked-circle
-                                            </v-icon>
-                                        </td>
-                                        <td>
-                                            <v-icon size="20" class="mr-4" @click="openEdit(item)">
-                                                edit
-                                            </v-icon>
-                                            <v-icon size="20" color="deep-orange" @click="confirmDelete(item)">
-                                                mdi-delete-forever</v-icon>
-                                        </td>
-                                    </tr>
+                        <el-table fixed-header class="pl-4 pr-4" row-key="Id" :data="searchResult.list" size="small"
+                            header-row-class-name="table-header-row"
+                            :tree-props="{children: 'Childs', hasChildren: 'Childs.length > 0'}">
+                            <el-table-column prop="Id" label="Id" align="center" min-width="60"></el-table-column>
+                            <el-table-column prop="Title" label="标题"></el-table-column>
+                            <el-table-column prop="DisplayOrder" label="排序" min-width="20"></el-table-column>
+                            <el-table-column prop="Enable" label="状态" min-width="30">
+                                <template slot-scope="scope">
+                                    <v-icon size="20" v-if="!scope.row.Enable" @click="confirmSetEnable(scope.row)"
+                                        color="red lighten-2">
+                                        mdi-cancel
+                                    </v-icon>
+                                    <v-icon size="20" v-else @click="confirmSetEnable(scope.row)"
+                                        color="green lighten-2">
+                                        mdi-checkbox-marked-circle
+                                    </v-icon>
                                 </template>
-                            </tbody>
-                        </v-simple-table>
+                            </el-table-column>
+                            <el-table-column align="left" label="操作">
+                                <template slot-scope="scope">
+                                    <v-icon size="20" class="mr-4" @click="openCreate(scope.row)">
+                                        add_box
+                                    </v-icon>
+                                    <v-icon size="20" class="mr-4" @click="openEdit(scope.row)">
+                                        edit
+                                    </v-icon>
+                                    <v-icon size="20" color="deep-orange" @click="confirmDelete(scope.row)">
+                                        mdi-delete-forever</v-icon>
+                                </template>
+                            </el-table-column>
+
+                        </el-table>
                     </div>
 
-                    <!--分页控件-->
-                    <div class="pa-4">
-                        <v-pagination v-model="pageSetting.page" :circle="pageSetting.circle"
-                            :disabled="pageSetting.disabled" :length="pageSetting.length"
-                            :next-icon="pageSetting.nextIcon" :prev-icon="pageSetting.prevIcon" :page="pageSetting.page"
-                            :total-visible="pageSetting.totalVisible" v-on:input="search(pageSetting.page - 1)"
-                            v-on:previous="search(pageSetting.page - 1)" v-on:Value="search(pageSetting.page - 1)">
-                        </v-pagination>
-                    </div>
+
                 </div>
             </div>
 
@@ -92,65 +72,45 @@
             <v-dialog v-model="updateDialog.isShow" max-width="800px" persistent :disabled="saveLoading">
                 <v-card ref="form">
                     <v-card-title>
-                        <span class="headline mr-4">{{updateItem.Id === 0 ? '新建' : '编辑'}}</span><span>账号</span>
+                        <span class="headline mr-4">{{updateItem.Id === 0 ? '新建' : '编辑'}}</span><span>分类</span>
                     </v-card-title>
 
                     <v-card-text>
                         <v-container>
                             <v-row>
-                                <v-col cols="12" md="6">
-                                    <v-text-field v-model="updateItem.Account" label="账号" dense
-                                        :rules="[() => !!updateItem.Account || '不能为空.']" :error-messages="errorMessages"
-                                        ref="Entity_Account">
-                                    </v-text-field>
-                                </v-col>
-                                <v-col cols="12" md="6">
-                                    <v-text-field v-model="updateItem.Password" label="密码" dense :type="'password'"
-                                        :rules="[() => !!updateItem.Password || '不能为空.']" :error-messages="errorMessages"
-                                        ref="Entity_Password">
-                                    </v-text-field>
-                                </v-col>
-                            </v-row>
-                            <v-row>
-                                <v-col cols="12" md="6">
-                                    <v-text-field v-model="updateItem.Name" label="真实姓名" dense
-                                        :error-messages="errorMessages"
-                                        ref="Entity_Name">
-                                    </v-text-field>
-                                </v-col>
-                                <v-col cols="12" md="6">
-                                    <v-text-field v-model="updateItem.NickName" label="昵称" dense
-                                         :error-messages="errorMessages"
-                                        ref="Entity_NickName">
-                                    </v-text-field>
-                                </v-col>
-                            </v-row>
-                            <v-row>
-                                <v-col cols="12" md="6">
-                                    <v-select :items="sexModel" label="性别" v-model="updateItem.Sex" dense item-text="Name" item-value="Id">
-
-                                    </v-select>
-                                </v-col>
-                                <v-col cols="12" md="6">
-                                    <v-text-field v-model="updateItem.Tel1" label="电话" dense
-                                        :error-messages="errorMessages"
-                                        ref="Entity_Tel1">
-                                    </v-text-field>
+                                <v-col v-if="updateItem.ParentId > 0 && updateItem.Parent" cols="12" md="12">
+                                    <v-expansion-panels>
+                                        <v-expansion-panel>
+                                            <v-expansion-panel-header>父节点：{{updateItem.Parent.Title}}
+                                            </v-expansion-panel-header>
+                                            <v-expansion-panel-content>
+                                                <p class="mb-1 grey--text text--darken-1">Id：{{updateItem.Parent.Id}}
+                                                </p>
+                                            </v-expansion-panel-content>
+                                        </v-expansion-panel>
+                                    </v-expansion-panels>
                                 </v-col>
                             </v-row>
                             <v-row>
                                 <v-col cols="12" md="12">
-                                    <v-select :items="roleModel" label="角色" dense item-text="Title" item-value="Id" v-model="updateItem.Roles"
-                                    multiple chips return-object>
-
-                                    </v-select>
+                                    <v-text-field v-model="updateItem.Title" dense label="名称" placeholder="请输入分类名称"
+                                        :rules="[() => !!updateItem.Title || '不能为空.']" :error-messages="errorMessages"
+                                        ref="Entity_Title">
+                                    </v-text-field>
                                 </v-col>
                             </v-row>
                             <v-row>
-                                <v-col cols="12" md="12">
-                                    <v-switch v-model="updateItem.Enable" label="是否启用" dense></v-switch>
+                                <v-col cols="12" md="6">
+                                    <v-text-field v-model="updateItem.DisplayOrder" label="序号" ref="DisplayOrder"
+                                        :error-messages="errorMessages"
+                                        :rules="[() => !!updateItem.DisplayOrder || '不能为空.']">
+                                    </v-text-field>
+                                </v-col>
+                                <v-col cols="12" md="6">
+                                    <v-switch v-model="updateItem.Enable" label="是否启用"></v-switch>
                                 </v-col>
                             </v-row>
+                            
                         </v-container>
                     </v-card-text>
 
@@ -162,7 +122,9 @@
                             保存</v-btn>
                     </v-card-actions>
                 </v-card>
+
             </v-dialog>
+
 
             <!--删除-->
             <v-dialog v-model="deleteDialog" persistent max-width="640">
@@ -170,8 +132,8 @@
                     <v-card-title class="headline"><span class="red--text">警告</span></v-card-title>
                     <v-card-text>
                         <p class="mb-1 subtitle-1 font-weight-bold">是否删除该项目?</p>
-                        <p class="mb-1">账号：{{updateItem.Account}}</p>
-                        <p class="mb-1">昵称：{{updateItem.UserNickName}}</p>
+                        <p class="mb-1">Id：{{updateItem.Id}}</p>
+                        <p class="mb-1">标题：{{updateItem.Title}}</p>
                     </v-card-text>
                     <v-card-actions>
                         <v-spacer></v-spacer>
@@ -188,8 +150,8 @@
                     <v-card-text>
                         <p v-if="updateItem.Enable" class="mb-1 subtitle-1 font-weight-bold">是否禁用该项目?</p>
                         <p v-else class="mb-1 subtitle-1 font-weight-bold">是否启用该项目?</p>
-                        <p class="mb-1">账号：{{updateItem.Account}}</p>
-                        <p class="mb-1">昵称：{{updateItem.UserNickName}}</p>
+                        <p class="mb-1">Id：{{updateItem.Id}}</p>
+                        <p class="mb-1">标题：{{updateItem.Title}}</p>
                     </v-card-text>
                     <v-card-actions>
                         <v-spacer></v-spacer>
@@ -216,7 +178,13 @@
 </template>
 
 <script>
+    import PictureSelector from '../../components/common/PictureSelector.vue';
+
     export default {
+        components: {
+            PictureSelector,
+        },
+
         data() {
             return {
                 searchModel: {
@@ -244,17 +212,13 @@
                 updateItem: {
                     Id: 0,
                     Name: '',
-                    Account: '',
-                    NickName: '',
-                    Sex: 0,
-                    Tel1: '',
-                    HeadImgurl: '',
-                    UserNickName: '',
-                    Password: '',
                     Enable: true,
-                    UserType: 1,
-                    IsSystemAccount: false,
-                    Roles: [],
+                    Description: '',
+                    ParentId: 0,
+                    DisplayOrder: 0,
+                    Title: '',
+                    
+                    Parent: null,
                 },
 
                 updateDialog: {
@@ -270,26 +234,29 @@
                 deleteDialog: false,
                 setEnableDialog: false,
 
-                sexModel: [
-                    { Id:0, Name:'保密' },
-                    { Id:1, Name:'男' },
-                    { Id:2, Name:'女' },
-                ],
+                //图片选择控件参数
+                imgSelectorSetting: {
+                    show: false,
+                    selectedPictures: [],
+                    pictureField: '',
+                    pictureUrlField: '',
+                },
 
-                roleModel: [],
+                
             }
         },
 
         mounted() {
-            this.getRoles();
-            this.search(0);
+            this.search(0);  
         },
 
         methods: {
             search: function (pageIndex) {
+                let companyId = this.$route.params.id;
+
                 this.loadingDialog.isShow = true;
 
-                this.getAxios('/api/identity/backend/user/list', {
+                this.getAxios('/api/course/backend/lessoncategory/list', {
                     searchName: this.searchModel.searchName,
                     pageIndex: pageIndex,
                     pageSize: this.searchResult.pageSize,
@@ -314,31 +281,29 @@
             prepareUpdateItem: function (item) {
                 this.updateItem.Id = item.Id;
                 this.updateItem.Name = item.Name;
-                this.updateItem.Account = item.Account;
-                this.updateItem.NickName = item.NickName;
-                this.updateItem.Sex = item.Sex;
-                this.updateItem.Tel1 = item.Tel1;
-                this.updateItem.HeadImgurl = item.HeadImgurl;
-                this.updateItem.UserNickName = item.UserNickName;
                 this.updateItem.Enable = item.Enable;
-                this.updateItem.Roles = item.Roles;
-                this.updateItem.Password = '******';
+                this.updateItem.Description = item.Description;
+                this.updateItem.ParentId = item.ParentId;
+                this.updateItem.DisplayOrder = item.DisplayOrder;
+                this.updateItem.Title = item.Title;
             },
 
-            openCreate: function () {
+            openCreate: function (item) {
                 this.updateItem.Id = 0;
                 this.updateItem.Name = '';
-                this.updateItem.Account = '';
-                this.updateItem.NickName = '';
-                this.updateItem.Sex = 0;
-                this.updateItem.Tel1 = '';
-                this.updateItem.HeadImgurl = '';
-                this.updateItem.UserNickName = '';
-                this.updateItem.Password = '';
                 this.updateItem.Enable = true;
-                this.updateItem.Roles = [];
+                this.updateItem.Description = '';
+                this.updateItem.ParentId = 0;
+                this.updateItem.DisplayOrder = 1;
+                this.updateItem.Title = '';
 
-                this.getRoles();
+                if (item) {
+                    this.updateItem.Parent = item;
+                    this.updateItem.ParentId = item.Id;
+                } else {
+                    this.updateItem.Parent = null;
+                    this.updateItem.ParentId = 0;
+                }
 
                 this.updateDialog.isShow = true;
             },
@@ -346,17 +311,56 @@
             openEdit: function (item) {
                 this.prepareUpdateItem(item);
 
-                this.getRoles();
+                if (item.ParentId > 0) {
+                    let parent = this.getParentNode(this.searchResult.list, item.ParentId);
+                    if (parent) {
+                        this.updateItem.Parent = parent;
+                    } else {
+                        this.updateItem.Parent = null;
+                    }
+                } else {
+                    this.updateItem.Parent = null;
+                }
 
                 this.updateDialog.isShow = true;
+            },
+
+            getParentNode: function (treelist, parentId) {
+                let result = null
+
+                for (let i = 0; i < treelist.length; i++) {
+                    let obj = treelist[i];
+                    if (obj && obj.Id === parentId) {
+                        return obj;
+                    } else {
+                        if (obj.Childs && obj.Childs.length > 0) {
+                            result = this.getParentNode(obj.Childs, parentId);
+                            if (result) {
+                                break;
+                            }
+                        } else {
+                            continue;
+                        }
+                    }
+                }
+
+                return result;
             },
 
             saveUpdate: function () {
                 this.loadingDialog.message = '正在提交数据...';
                 this.loadingDialog.isShow = true;
 
+                if (this.updateItem.Parent) {
+                    this.updateItem.Parent = null;
+                }
+
+                if(this.pageLayout) {
+                    this.updateItem.PageLayoutId = this.pageLayout.Id;
+                }
+
                 if (this.updateItem.Id === 0) {
-                    this.postAxios('/api/identity/backend/user/create', JSON.stringify(this.updateItem)).then((data) => {
+                    this.postAxios('/api/course/backend/lessoncategory/create', JSON.stringify(this.updateItem)).then((data) => {
                         if (data.errorcode === 0) {
                             this.loadingDialog.isShow = false;
                             this.updateDialog.isShow = false;
@@ -372,7 +376,7 @@
                         this.$toast.error('新增失败,请重新提交.', { x: 'right', y: 'bottom', timeout: 2000, showClose: true, });
                     });
                 } else if (this.updateItem.Id > 0) {
-                    this.postAxios('/api/identity/backend/user/edit', JSON.stringify(this.updateItem)).then((data) => {
+                    this.postAxios('/api/course/backend/lessoncategory/edit', JSON.stringify(this.updateItem)).then((data) => {
                         if (data.errorcode === 0) {
                             this.loadingDialog.isShow = false;
                             this.updateDialog.isShow = false;
@@ -404,7 +408,7 @@
                 this.loadingDialog.message = '正在提交数据...';
                 this.loadingDialog.isShow = true;
 
-                this.getAxios('/api/identity/backend/user/delete', { id: this.updateItem.Id, }).then((data) => {
+                this.getAxios('/api/course/backend/lessoncategory/delete', { id: this.updateItem.Id, }).then((data) => {
                     if (data.errorcode === 0) {
                         this.loadingDialog.isShow = false;
                         this.deleteDialog = false;
@@ -429,7 +433,7 @@
                 this.loadingDialog.message = '正在提交数据...';
                 this.loadingDialog.isShow = true;
 
-                this.getAxios('/api/identity/backend/user/setenable', { id: this.updateItem.Id, }).then((data) => {
+                this.getAxios('/api/course/backend/lessoncategory/setenable', { id: this.updateItem.Id, }).then((data) => {
                     if (data.errorcode === 0) {
                         this.loadingDialog.isShow = false;
                         this.setEnableDialog = false;
@@ -445,31 +449,12 @@
                 });
             },
 
-            getRoles: function() {
-                this.getAxios('/api/identity/backend/user/GetRoles').then((data) => {
-                    if(data.errorcode === 0) {
-                        //console.log(data.result);
-                        this.roleModel = data.result.Data;
-                    } else {
+            
 
-                    }
-                }).catch((error) => {
-
-                });
-            },
-
-            getRolesName: function(roles) {
-                let name = '';
-                let isfirst = true;
-                if(roles && roles.length > 0) {
-                    roles.forEach((currentValue) => {
-                        name = name + '<v-chip></v-chip>'
-                    });
-                }
-            },
         },
     }
 </script>
 
 <style scoped>
+
 </style>

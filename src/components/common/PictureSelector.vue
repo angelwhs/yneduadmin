@@ -25,10 +25,12 @@
                 </v-row>
 
                 <!--图片列表区域-->
-                <div style="position: relative">
+                <div style="position: relative; min-height: 60px;" id="pictureListBox">
+                    <!--刷新小按钮-->
                     <v-btn absolute dark fab top right small color="grey lighten-1" width="32" @click="search(0)">
                         <v-icon>mdi-reload</v-icon>
                     </v-btn>
+                    
                     <v-item-group :multiple="multiple" :mandatory="mandatory" v-model="selectedItemskey">
                         <v-container class="pa-0">
                             <v-row>
@@ -89,6 +91,8 @@
             pictureField: String,
 
             pictureUrlField: String,
+
+            platformName: String,
         },
 
         data() {
@@ -126,15 +130,27 @@
         },
 
         created() {
-            this.search(0);
+            //this.search(0);
+        },
+
+        mounted() {
+            
         },
 
         methods: {
             search: function (pageIndex) {
+
+                // 显示loading
+                let loading = this.$loading({
+                    text: '数据加载中...',
+                    target: '#pictureListBox',
+                    type: 'oval'
+                })
+
                 this.selectedItemskey = [];
                 this.selectedItems = [];
 
-                this.getAxios('/api/cms/backend/picture/GetPictures', {
+                this.getAxios(this.getApiBaseUrl(this.platformName) + 'GetPictures', {
                     pageIndex: pageIndex,
                     pageSize: this.searchResult.pageSize,
                 }).then((data) => {
@@ -146,8 +162,10 @@
                     } else {
 
                     }
-                }).catch((error) => {
 
+                    loading.close();
+                }).catch((error) => {
+                    loading.close();
                 });
             },
 
@@ -175,7 +193,7 @@
                 let dataFile = new FormData();
                 dataFile.append('file_upload', file)
 
-                this.postFileAxios('/api/cms/backend/picture/AsyncUpload', dataFile).then((data) => {
+                this.postFileAxios(this.getApiBaseUrl(this.platformName) + 'AsyncUpload', dataFile).then((data) => {
                     if (data.errorcode === 0) {
                         this.$toast.success('图片上传成功.', { x: 'center', y: 'top', timeout: 3000, showClose: true, });
                         this.uploadFiles = [];
@@ -187,11 +205,37 @@
                     this.$toast.error('图片上传失败.' + error.message, { x: 'center', y: 'top', timeout: 2000, showClose: true, });
                 });
             },
+
+            getApiBaseUrl: function(platform) {
+                
+                if(platform) {
+                    switch(platform) {
+                        case 'cms':
+                            return'/api/media/backend/picture/';
+                        case 'course':
+                            return '/api/media/backend/picture/';
+                        case 'indentity':
+                            return '/api/media/backend/picture/';
+                        case 'media':
+                            return '/api/media/backend/picture/';
+                        default:
+                            return '/api/media/backend/picture/';
+                    }
+                } else {
+                    return '/api/media/backend/picture/';
+                }
+            },
+
+
         },
 
         watch: {
             isShow(val) {
                 this.show = val;
+
+                if(this.show) {
+                    this.search(0);
+                }
             },
             show(val) {
                 this.$emit("on-show-change", val);

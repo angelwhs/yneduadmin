@@ -56,43 +56,6 @@
 
                         <!--结果表格-->
                         <div class="mt-4" id="searchResultTable">
-                            <!-- <v-simple-table fixed-header class="pl-4 pr-4">
-                                <thead>
-                                    <tr>
-                                        <th class="text-left">Id</th>
-                                        <th class="text-left">标题</th>
-                                        <th class="text-left">描述</th>
-                                        <th class="text-left">状态</th>
-                                        <th class="text-left">操作</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <template v-if="searchResult.list && searchResult.list.length > 0">
-                                        <tr v-for="item in searchResult.list" :key="item.Id">
-                                            <td>{{ item.Id }}</td>
-                                            <td>{{ item.Title }}</td>
-                                            <td>{{ item.Description }}</td>
-                                            <td>
-                                                <v-icon size="20" v-if="!item.Enable" @click="confirmSetEnable(item)"
-                                                    color="red lighten-2">
-                                                    mdi-cancel
-                                                </v-icon>
-                                                <v-icon size="20" v-else @click="confirmSetEnable(item)"
-                                                    color="green lighten-2">
-                                                    mdi-checkbox-marked-circle
-                                                </v-icon>
-                                            </td>
-                                            <td>
-                                                <v-icon size="20" class="mr-4" @click="openEdit(item)">
-                                                    edit
-                                                </v-icon>
-                                                <v-icon size="20" color="deep-orange" @click="confirmDelete(item)">
-                                                    mdi-delete-forever</v-icon>
-                                            </td>
-                                        </tr>
-                                    </template>
-                                </tbody>
-                            </v-simple-table> -->
                             <v-data-table hide-default-footer calculate-widths :headers="searchResult.headers"
                                 item-key="Id" :items="searchResult.list" no-data-text="未查询到数据" loading-text="数据加载中...">
 
@@ -301,7 +264,7 @@
 
                     <!--选择图片-->
                     <picture-selector :isShow="imgSelectorSetting.show" v-on:on-show-change="pictureSelectorShowChange"
-                        :multiple="false" :pictureField="imgSelectorSetting.pictureField"
+                        :multiple="false" :pictureField="imgSelectorSetting.pictureField" platformName="cms"
                         :pictureUrlField="imgSelectorSetting.pictureUrlField" v-on:on-confirm="pictureSelectorConfirm">
                     </picture-selector>
                 </v-dialog>

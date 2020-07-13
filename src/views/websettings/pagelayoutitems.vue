@@ -3,7 +3,7 @@
         <v-container grid-list-xl fluid>
             <!--tool bar-->
             <div class="pb-5">
-                <v-toolbar dense>
+                <v-toolbar dense dark color="primary" :tile="false">
                     <v-btn icon class="hidden-xs-only" @click="gotoBack">
                         <v-icon>mdi-arrow-left</v-icon>
                     </v-btn>
@@ -261,7 +261,7 @@
 
                 <!--选择图片-->
                 <picture-selector :isShow="imgSelectorSetting.show" v-on:on-show-change="pictureSelectorShowChange"
-                    :multiple="false" :pictureField="imgSelectorSetting.pictureField"
+                    :multiple="false" :pictureField="imgSelectorSetting.pictureField" platformName="cms"
                     :pictureUrlField="imgSelectorSetting.pictureUrlField" v-on:on-confirm="pictureSelectorConfirm">
                 </picture-selector>
             </v-dialog>

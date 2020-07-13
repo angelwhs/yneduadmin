@@ -1,5 +1,5 @@
 <template>
-    <div id="pageUserAccount" class="page-wrapper">
+    <div id="pageArticleTag" class="page-wrapper">
         <v-container grid-list-xl fluid>
             <!--查询条件-->
             <div>
@@ -15,6 +15,7 @@
                     </v-row>
                 </v-card>
             </div>
+
 
             <!--查询结果-->
             <div class="my-auto">
@@ -33,9 +34,7 @@
                             <thead>
                                 <tr>
                                     <th class="text-left">Id</th>
-                                    <th class="text-left">账号</th>
-                                    <th class="text-left">昵称</th>
-                                    <th class="text-left">角色</th>
+                                    <th class="text-left">名称</th>
                                     <th class="text-left">状态</th>
                                     <th class="text-left">操作</th>
                                 </tr>
@@ -44,15 +43,7 @@
                                 <template v-if="searchResult.list && searchResult.list.length > 0">
                                     <tr v-for="item in searchResult.list" :key="item.Id">
                                         <td>{{ item.Id }}</td>
-                                        <td>{{ item.Account }}</td>
-                                        <td>{{ item.UserNickName }}</td>
-                                        <td>
-                                            <v-chip-group v-if="item.Roles && item.Roles.length > 0" column >
-                                                <v-chip v-for="role in item.Roles" :key="role.Id" small>
-                                                    {{ role.Title }}
-                                                  </v-chip>
-                                            </v-chip-group>
-                                        </td>
+                                        <td>{{ item.Name }}</td>
                                         <td>
                                             <v-icon size="20" v-if="!item.Enable" @click="confirmSetEnable(item)"
                                                 color="red lighten-2">
@@ -92,64 +83,27 @@
             <v-dialog v-model="updateDialog.isShow" max-width="800px" persistent :disabled="saveLoading">
                 <v-card ref="form">
                     <v-card-title>
-                        <span class="headline mr-4">{{updateItem.Id === 0 ? '新建' : '编辑'}}</span><span>账号</span>
+                        <span class="headline mr-4">{{updateItem.Id === 0 ? '新建' : '编辑'}}</span><span>文章标签</span>
                     </v-card-title>
 
                     <v-card-text>
                         <v-container>
                             <v-row>
-                                <v-col cols="12" md="6">
-                                    <v-text-field v-model="updateItem.Account" label="账号" dense
-                                        :rules="[() => !!updateItem.Account || '不能为空.']" :error-messages="errorMessages"
-                                        ref="Entity_Account">
-                                    </v-text-field>
-                                </v-col>
-                                <v-col cols="12" md="6">
-                                    <v-text-field v-model="updateItem.Password" label="密码" dense :type="'password'"
-                                        :rules="[() => !!updateItem.Password || '不能为空.']" :error-messages="errorMessages"
-                                        ref="Entity_Password">
-                                    </v-text-field>
-                                </v-col>
+                                <v-text-field v-model="updateItem.Name" label="名称"
+                                    :rules="[() => !!updateItem.Name || '不能为空.']" :error-messages="errorMessages"
+                                    ref="Entity_Name">
+                                </v-text-field>
                             </v-row>
                             <v-row>
-                                <v-col cols="12" md="6">
-                                    <v-text-field v-model="updateItem.Name" label="真实姓名" dense
-                                        :error-messages="errorMessages"
-                                        ref="Entity_Name">
-                                    </v-text-field>
-                                </v-col>
-                                <v-col cols="12" md="6">
-                                    <v-text-field v-model="updateItem.NickName" label="昵称" dense
-                                         :error-messages="errorMessages"
-                                        ref="Entity_NickName">
-                                    </v-text-field>
-                                </v-col>
+                                <v-text-field v-model="updateItem.Description" label="描述"
+                                    ref="Entity_Description">
+                                </v-text-field>
                             </v-row>
                             <v-row>
-                                <v-col cols="12" md="6">
-                                    <v-select :items="sexModel" label="性别" v-model="updateItem.Sex" dense item-text="Name" item-value="Id">
+                                <v-switch v-model="updateItem.Enable" label="是否启用"></v-switch>
+                            </v-row>
+                            <v-row>
 
-                                    </v-select>
-                                </v-col>
-                                <v-col cols="12" md="6">
-                                    <v-text-field v-model="updateItem.Tel1" label="电话" dense
-                                        :error-messages="errorMessages"
-                                        ref="Entity_Tel1">
-                                    </v-text-field>
-                                </v-col>
-                            </v-row>
-                            <v-row>
-                                <v-col cols="12" md="12">
-                                    <v-select :items="roleModel" label="角色" dense item-text="Title" item-value="Id" v-model="updateItem.Roles"
-                                    multiple chips return-object>
-
-                                    </v-select>
-                                </v-col>
-                            </v-row>
-                            <v-row>
-                                <v-col cols="12" md="12">
-                                    <v-switch v-model="updateItem.Enable" label="是否启用" dense></v-switch>
-                                </v-col>
                             </v-row>
                         </v-container>
                     </v-card-text>
@@ -170,8 +124,8 @@
                     <v-card-title class="headline"><span class="red--text">警告</span></v-card-title>
                     <v-card-text>
                         <p class="mb-1 subtitle-1 font-weight-bold">是否删除该项目?</p>
-                        <p class="mb-1">账号：{{updateItem.Account}}</p>
-                        <p class="mb-1">昵称：{{updateItem.UserNickName}}</p>
+                        <p class="mb-1">Id：{{updateItem.Id}}</p>
+                        <p class="mb-1">名称：{{updateItem.Name}}</p>
                     </v-card-text>
                     <v-card-actions>
                         <v-spacer></v-spacer>
@@ -188,8 +142,8 @@
                     <v-card-text>
                         <p v-if="updateItem.Enable" class="mb-1 subtitle-1 font-weight-bold">是否禁用该项目?</p>
                         <p v-else class="mb-1 subtitle-1 font-weight-bold">是否启用该项目?</p>
-                        <p class="mb-1">账号：{{updateItem.Account}}</p>
-                        <p class="mb-1">昵称：{{updateItem.UserNickName}}</p>
+                        <p class="mb-1">Id：{{updateItem.Id}}</p>
+                        <p class="mb-1">名称：{{updateItem.Name}}</p>
                     </v-card-text>
                     <v-card-actions>
                         <v-spacer></v-spacer>
@@ -210,7 +164,6 @@
                     </v-card-text>
                 </v-card>
             </v-dialog>
-
         </v-container>
     </div>
 </template>
@@ -244,17 +197,7 @@
                 updateItem: {
                     Id: 0,
                     Name: '',
-                    Account: '',
-                    NickName: '',
-                    Sex: 0,
-                    Tel1: '',
-                    HeadImgurl: '',
-                    UserNickName: '',
-                    Password: '',
                     Enable: true,
-                    UserType: 1,
-                    IsSystemAccount: false,
-                    Roles: [],
                 },
 
                 updateDialog: {
@@ -269,19 +212,10 @@
                 },
                 deleteDialog: false,
                 setEnableDialog: false,
-
-                sexModel: [
-                    { Id:0, Name:'保密' },
-                    { Id:1, Name:'男' },
-                    { Id:2, Name:'女' },
-                ],
-
-                roleModel: [],
             }
         },
 
         mounted() {
-            this.getRoles();
             this.search(0);
         },
 
@@ -289,8 +223,9 @@
             search: function (pageIndex) {
                 this.loadingDialog.isShow = true;
 
-                this.getAxios('/api/identity/backend/user/list', {
+                this.getAxios('/api/course/backend/lessontag/list', {
                     searchName: this.searchModel.searchName,
+                    isShowDisable: false,
                     pageIndex: pageIndex,
                     pageSize: this.searchResult.pageSize,
                 }).then((data) => {
@@ -314,39 +249,19 @@
             prepareUpdateItem: function (item) {
                 this.updateItem.Id = item.Id;
                 this.updateItem.Name = item.Name;
-                this.updateItem.Account = item.Account;
-                this.updateItem.NickName = item.NickName;
-                this.updateItem.Sex = item.Sex;
-                this.updateItem.Tel1 = item.Tel1;
-                this.updateItem.HeadImgurl = item.HeadImgurl;
-                this.updateItem.UserNickName = item.UserNickName;
                 this.updateItem.Enable = item.Enable;
-                this.updateItem.Roles = item.Roles;
-                this.updateItem.Password = '******';
             },
 
             openCreate: function () {
                 this.updateItem.Id = 0;
                 this.updateItem.Name = '';
-                this.updateItem.Account = '';
-                this.updateItem.NickName = '';
-                this.updateItem.Sex = 0;
-                this.updateItem.Tel1 = '';
-                this.updateItem.HeadImgurl = '';
-                this.updateItem.UserNickName = '';
-                this.updateItem.Password = '';
                 this.updateItem.Enable = true;
-                this.updateItem.Roles = [];
-
-                this.getRoles();
 
                 this.updateDialog.isShow = true;
             },
 
             openEdit: function (item) {
                 this.prepareUpdateItem(item);
-
-                this.getRoles();
 
                 this.updateDialog.isShow = true;
             },
@@ -356,35 +271,35 @@
                 this.loadingDialog.isShow = true;
 
                 if (this.updateItem.Id === 0) {
-                    this.postAxios('/api/identity/backend/user/create', JSON.stringify(this.updateItem)).then((data) => {
+                    this.postAxios('/api/course/backend/lessontag/create', JSON.stringify(this.updateItem)).then((data) => {
                         if (data.errorcode === 0) {
                             this.loadingDialog.isShow = false;
                             this.updateDialog.isShow = false;
-                            this.$toast.success('新增成功.', { x: 'right', y: 'bottom', timeout: 2000, showClose: true, });
+                            this.$toast.success('新增成功.', { x: 'center', y: 'top', timeout: 2000, showClose: true, });
                             this.search(0);
                         } else {
                             this.loadingDialog.isShow = false;
-                            this.$toast.error('新增失败,请重新提交.</br>' + data.errormsg, { x: 'right', y: 'bottom', timeout: 2000, showClose: true, });
+                            this.$toast.error('新增失败,请重新提交.</br>' + data.errormsg, { x: 'center', y: 'top', timeout: 2000, showClose: true, });
                             //console.log(data);
                         }
                     }).catch((error) => {
                         this.loadingDialog.isShow = false;
-                        this.$toast.error('新增失败,请重新提交.', { x: 'right', y: 'bottom', timeout: 2000, showClose: true, });
+                        this.$toast.error('新增失败,请重新提交.', { x: 'center', y: 'top', timeout: 2000, showClose: true, });
                     });
                 } else if (this.updateItem.Id > 0) {
-                    this.postAxios('/api/identity/backend/user/edit', JSON.stringify(this.updateItem)).then((data) => {
+                    this.postAxios('/api/course/backend/lessontag/edit', JSON.stringify(this.updateItem)).then((data) => {
                         if (data.errorcode === 0) {
                             this.loadingDialog.isShow = false;
                             this.updateDialog.isShow = false;
-                            this.$toast.success('修改成功.', { x: 'right', y: 'bottom', timeout: 2000, showClose: true, });
+                            this.$toast.success('修改成功.', { x: 'center', y: 'top', timeout: 2000, showClose: true, });
                             this.search(0);
                         } else {
                             this.loadingDialog.isShow = false;
-                            this.$toast.error('修改失败,请重新提交.</br>' + data.errormsg, { x: 'right', y: 'bottom', timeout: 2000, showClose: true, });
+                            this.$toast.error('修改失败,请重新提交.</br>' + data.errormsg, { x: 'center', y: 'top', timeout: 2000, showClose: true, });
                         }
                     }).catch((error) => {
                         this.loadingDialog.isShow = false;
-                        this.$toast.error('新增失败,请重新提交.', { x: 'right', y: 'bottom', timeout: 2000, showClose: true, });
+                        this.$toast.error('新增失败,请重新提交.', { x: 'center', y: 'top', timeout: 2000, showClose: true, });
                     });
                 } else {
                     this.loadingDialog.isShow = false;
@@ -404,19 +319,19 @@
                 this.loadingDialog.message = '正在提交数据...';
                 this.loadingDialog.isShow = true;
 
-                this.getAxios('/api/identity/backend/user/delete', { id: this.updateItem.Id, }).then((data) => {
+                this.getAxios('/api/course/backend/lessontag/delete', { id: this.updateItem.Id, }).then((data) => {
                     if (data.errorcode === 0) {
                         this.loadingDialog.isShow = false;
                         this.deleteDialog = false;
-                        this.$toast.success('删除成功.', { x: 'right', y: 'bottom', timeout: 2000, showClose: true, });
+                        this.$toast.success('删除成功.', { x: 'center', y: 'top', timeout: 2000, showClose: true, });
                         this.search(0);
                     } else {
                         this.loadingDialog.isShow = false;
-                        this.$toast.error('删除失败,请重新提交.</br>' + data.errormsg, { x: 'right', y: 'bottom', timeout: 2000, showClose: true, });
+                        this.$toast.error('删除失败,请重新提交.</br>' + data.errormsg, { x: 'center', y: 'top', timeout: 2000, showClose: true, });
                     }
                 }).catch((error) => {
                     this.loadingDialog.isShow = false;
-                    this.$toast.error('删除失败,请重新提交.</br>' + error.message, { x: 'right', y: 'bottom', timeout: 2000, showClose: true, });
+                    this.$toast.error('删除失败,请重新提交.</br>' + error.message, { x: 'center', y: 'top', timeout: 2000, showClose: true, });
                 });
             },
 
@@ -429,43 +344,20 @@
                 this.loadingDialog.message = '正在提交数据...';
                 this.loadingDialog.isShow = true;
 
-                this.getAxios('/api/identity/backend/user/setenable', { id: this.updateItem.Id, }).then((data) => {
+                this.getAxios('/api/course/backend/lessontag/setenable', { id: this.updateItem.Id, }).then((data) => {
                     if (data.errorcode === 0) {
                         this.loadingDialog.isShow = false;
                         this.setEnableDialog = false;
-                        this.$toast.success(this.updateItem.Enable ? '禁用成功.' : '启用成功', { x: 'right', y: 'bottom', timeout: 2000, showClose: true, });
+                        this.$toast.success(this.updateItem.Enable ? '禁用成功.' : '启用成功', { x: 'center', y: 'top', timeout: 2000, showClose: true, });
                         this.search(0);
                     } else {
                         this.loadingDialog.isShow = false;
-                        this.$toast.error(this.updateItem.Enable ? '禁用失败,请重新提交.</br>' + data.errormsg : '启用失败,请重新提交.</br>' + data.errormsg, { x: 'right', y: 'bottom', timeout: 2000, showClose: true, });
+                        this.$toast.error(this.updateItem.Enable ? '禁用失败,请重新提交.</br>' + data.errormsg : '启用失败,请重新提交.</br>' + data.errormsg, { x: 'center', y: 'top', timeout: 2000, showClose: true, });
                     }
                 }).catch((error) => {
                     this.loadingDialog.isShow = false;
-                    this.$toast.error(this.updateItem.Enable ? '禁用失败,请重新提交.</br>' + error.message : '启用失败,请重新提交.</br>' + error.message, { x: 'right', y: 'bottom', timeout: 2000, showClose: true, });
+                    this.$toast.error(this.updateItem.Enable ? '禁用失败,请重新提交.</br>' + error.message : '启用失败,请重新提交.</br>' + error.message, { x: 'center', y: 'top', timeout: 2000, showClose: true, });
                 });
-            },
-
-            getRoles: function() {
-                this.getAxios('/api/identity/backend/user/GetRoles').then((data) => {
-                    if(data.errorcode === 0) {
-                        //console.log(data.result);
-                        this.roleModel = data.result.Data;
-                    } else {
-
-                    }
-                }).catch((error) => {
-
-                });
-            },
-
-            getRolesName: function(roles) {
-                let name = '';
-                let isfirst = true;
-                if(roles && roles.length > 0) {
-                    roles.forEach((currentValue) => {
-                        name = name + '<v-chip></v-chip>'
-                    });
-                }
             },
         },
     }

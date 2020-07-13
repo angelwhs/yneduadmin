@@ -138,7 +138,7 @@
                 window.tinymceCallBackURL = '';
                 window.tinymceWindowManager = tinymce.activeEditor.windowManager;
 
-                var filemanUrl = 'http://localhost:5000/cms/lib/Roxy_Fileman/index.html';
+                var filemanUrl = 'http://localhost:8080/Roxy_Fileman/index.html';
 
                 if (filemanUrl.indexOf("?") < 0) {
                     filemanUrl += "?type=" + meta.filetype;

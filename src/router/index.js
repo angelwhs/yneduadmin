@@ -117,7 +117,108 @@ const router = new Router({
                     meta: { title: "页面项", group: "apps", icon: "dashboard" },
                     component: () => import(/* webpackChunkName: "role" */ "@/views/websettings/pagelayoutitems.vue")
                 },
-                
+
+                //course
+                {
+                    path: "/course/lesson",
+                    name: "CourseLessonManage",
+                    meta: { title: "课程管理", group: "apps", icon: "dashboard" },
+                    component: () => import(/* webpackChunkName: "role" */ "@/views/course/lesson.vue")
+                },
+                {
+                    path: "/course/lesson/catalog/:id",
+                    name: "CourseCatalogManage",
+                    meta: { title: "课程目录", group: "apps", icon: "dashboard" },
+                    component: () => import(/* webpackChunkName: "role" */ "@/views/course/catalog.vue")
+                },
+                {
+                    path: "/course/lesson/chapter/:id",
+                    name: "CourseChapterManage",
+                    meta: { title: "章节", group: "apps", icon: "dashboard" },
+                    component: () => import(/* webpackChunkName: "role" */ "@/views/course/chapter.vue")
+                },
+                {
+                    path: "/course/category",
+                    name: "CourseCategoryManage",
+                    meta: { title: "课程分类", group: "apps", icon: "dashboard" },
+                    component: () => import(/* webpackChunkName: "role" */ "@/views/course/category.vue")
+                },
+                {
+                    path: "/course/company",
+                    name: "CourseCompanyManage",
+                    meta: { title: "机构", group: "apps", icon: "dashboard" },
+                    component: () => import(/* webpackChunkName: "role" */ "@/views/course/company.vue")
+                },
+                {
+                    path: "/course/company/department/:id",
+                    name: "CourseDepartmentManage",
+                    meta: { title: "部门", group: "apps", icon: "dashboard" },
+                    component: () => import(/* webpackChunkName: "role" */ "@/views/course/department.vue")
+                },
+                {
+                    path: "/course/knowledgepoints",
+                    name: "CourseKnowledgePointsManage",
+                    meta: { title: "知识点", group: "apps", icon: "dashboard" },
+                    component: () => import(/* webpackChunkName: "role" */ "@/views/course/knowledgepoints.vue")
+                },
+                {
+                    path: "/course/lecturer",
+                    name: "CourseLecturerManage",
+                    meta: { title: "讲师", group: "apps", icon: "dashboard" },
+                    component: () => import(/* webpackChunkName: "role" */ "@/views/course/lecturer.vue")
+                },
+                {
+                    path: "/course/lessontag",
+                    name: "CourseLessonTagManage",
+                    meta: { title: "课程标签", group: "apps", icon: "dashboard" },
+                    component: () => import(/* webpackChunkName: "role" */ "@/views/course/lessontag.vue")
+                },
+                {
+                    path: "/course/vipcard",
+                    name: "CourseVIPCardManage",
+                    meta: { title: "VIP卡", group: "apps", icon: "dashboard" },
+                    component: () => import(/* webpackChunkName: "role" */ "@/views/course/vipcard.vue")
+                },
+                {
+                    path: "/course/lessonorder",
+                    name: "LessonOrderManage",
+                    meta: { title: "课程订单", group: "apps", icon: "dashboard" },
+                    component: () => import(/* webpackChunkName: "role" */ "@/views/course/lessonorder.vue")
+                },
+                {
+                    path: "/course/customer",
+                    name: "CustomerManage",
+                    meta: { title: "学员", group: "apps", icon: "dashboard" },
+                    component: () => import(/* webpackChunkName: "role" */ "@/views/course/customer.vue")
+                },
+
+                //设置
+                {
+                    path: "/settings/paymentmethod",
+                    name: "PaymentMethodManage",
+                    meta: { title: "支付方式", group: "apps", icon: "dashboard" },
+                    component: () => import(/* webpackChunkName: "role" */ "@/views/settings/paymentmethod.vue")
+                },
+                {
+                    path: "/settings/wechatglobalinfo",
+                    name: "WechatInfoManage",
+                    meta: { title: "微信公众号", group: "apps", icon: "dashboard" },
+                    component: () => import(/* webpackChunkName: "role" */ "@/views/settings/wechatinfo.vue")
+                },
+
+                //营销
+                {
+                    path: "/marketing/coupon",
+                    name: "CouponManage",
+                    meta: { title: "优惠券", group: "apps", icon: "dashboard" },
+                    component: () => import(/* webpackChunkName: "role" */ "@/views/marketing/coupon.vue")
+                },
+                {
+                    path: "/marketing/groupbuy",
+                    name: "GroupBuyManage",
+                    meta: { title: "团购", group: "apps", icon: "dashboard" },
+                    component: () => import(/* webpackChunkName: "role" */ "@/views/marketing/groupbuy.vue")
+                },
             ],
         },
         {
