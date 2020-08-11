@@ -46,8 +46,8 @@
                                     <tr v-for="item in searchResult.list" :key="item.Id">
                                         <td>{{ item.Id }}</td>
                                         <td>{{ item.Title }}</td>
-                                        <td>{{ item.Title }}</td>
-                                        <td>{{ item.Title }}</td>
+                                        <td>{{ getCouponType(item.CouponType) }}</td>
+                                        <td>{{ getCouponContent(item) }}</td>
                                         <td>
                                             <v-icon size="20" v-if="!item.Enable" @click="confirmSetEnable(item)"
                                                 color="red lighten-2">
@@ -101,398 +101,455 @@
                         </v-toolbar-items>
                     </v-toolbar>
 
-                    <v-card-text>
-                        <v-container>
-                            <!--名称-->
-                            <!--排序-->
-                            <!--状态-->
-                            <!--是否可累积-->
-                            <!--是否启用-->
-                            <v-row>
-                                <v-col cols="12" md="5">
-                                    <v-text-field v-model="updateItem.Title" dense label="名称" placeholder="请输入名称"
-                                        :rules="[() => !!updateItem.Title || '不能为空.']" :error-messages="errorMessages"
-                                        ref="EntityTitle">
-                                    </v-text-field>
-                                </v-col>
-                                <v-col cols="12" md="1">
-                                    <v-text-field v-model="updateItem.DisplayOrder" label="排序" dense placeholder="请输入排序"
-                                        :error-messages="errorMessages" ref="EntityDisplayOrder" type="number">
-                                    </v-text-field>
-                                </v-col>
-                                <v-col cols="12" md="2">
-                                    <v-select :items="statusList" dense label="状态" item-text="Name" item-value="Id"
-                                        placeholder="请选择状态" v-model="updateItem.Status">
-                                    </v-select>
-                                </v-col>
-                                <v-col cols="12" md="2">
-                                    <v-switch v-model="updateItem.IsCumulative" label="是否可累积"></v-switch>
-                                </v-col>
-                                <v-col cols="12" md="2">
-                                    <v-switch v-model="updateItem.Enable" label="是否启用"></v-switch>
-                                </v-col>
-                            </v-row>
+                    <v-card-text class="mt-2 pl-2 pr-2">
+                        <v-tabs background-color="white" color="primary " v-model="tabsSetting.tab">
+                            <v-tabs-slider></v-tabs-slider>
+                            <v-tab :key="1">基本信息</v-tab>
+                            <v-tab :key="2">优惠信息</v-tab>
+                            <v-tab :key="3">优惠券介绍</v-tab>
+                            <v-tab :key="4">兑换信息</v-tab>
+                            <v-tab :key="5">有效期限</v-tab>
+                            <v-tab :key="6">适用范围</v-tab>
+                        </v-tabs>
 
-                            <!--优惠券类型-->
-                            <!--满多少(满减券)-->
-                            <!--减多少(满减券)-->
-                            <!--折扣率(折扣券)100为基数-->
-                            <v-row>
-                                <v-col cols="12" md="4">
-                                    <v-select :items="couponTypeList" dense label="优惠券类型" item-text="Name"
-                                        item-value="Id" placeholder="请选择优惠券类型" v-model="updateItem.CouponType">
-                                    </v-select>
-                                </v-col>
-                                <v-col cols="12" md="8">
-                                    <v-row class="ml-2">
-                                        <span class="item-text-style">满</span>
-                                        <div style="width: 80px;">
-                                            <v-text-field v-model="updateItem.BaseAmount" dense placeholder="0"
-                                                :error-messages="errorMessages" ref="EntityBaseAmount" type="number">
-                                            </v-text-field>
-                                        </div>
-
-                                        <template v-if="updateItem.CouponType === 1 || updateItem.CouponType === 2">
-                                            <span class="item-text-style">元 </span>
-                                        </template>
-                                        <template v-else-if="updateItem.CouponType === 3">
-                                            <span class="item-text-style">件 </span>
-                                        </template>
-                                        <template v-if="updateItem.CouponType === 1">
-                                            <span class="item-text-style">减</span>
-                                            <div style="width: 80px;">
-                                                <v-text-field v-model="updateItem.DiscountAmount" dense placeholder="0"
-                                                    :error-messages="errorMessages" ref="EntityDiscountAmount"
-                                                    type="number">
-                                                </v-text-field>
-                                            </div>
-
-                                            <span class="item-text-style">元</span>
-                                        </template>
-                                        <template
-                                            v-else-if="updateItem.CouponType === 2 || updateItem.CouponType === 3">
-                                            <span class="item-text-style">打</span>
-                                            <div style="width: 80px;">
-                                                <v-text-field v-model="updateItem.DiscountPercentage" dense
-                                                    placeholder="0" :error-messages="errorMessages"
-                                                    ref="EntityDiscountPercentage" type="number">
-                                                </v-text-field>
-                                            </div>
-                                            <span class="item-text-style">折</span>
-                                        </template>
-                                    </v-row>
-                                </v-col>
-
-                            </v-row>
-
-                            <!--领取开始时间-->
-                            <!--领取结束时间-->
-                            <v-row>
-                                
-                                <v-col cols="12" md="6">
-                                    <v-menu v-model="datePickSettings.beginTimeMenu" :close-on-content-click="false"
-                                        :nudge-right="40" transition="scale-transition" offset-y min-width="290px">
-                                        <template v-slot:activator="{ on, attrs }">
-                                            <v-text-field v-model="updateItem.BeginTime" label="领取开始时间" dense
-                                                prepend-icon="event" readonly v-bind="attrs" v-on="on"></v-text-field>
-                                        </template>
-                                        <v-date-picker v-model="updateItem.BeginTime"
-                                            @input="datePickSettings.beginTimeMenu = false"></v-date-picker>
-                                    </v-menu>
-                                </v-col>
-                                <v-col cols="12" md="6">
-                                    <v-menu v-model="datePickSettings.endTimeMenu" :close-on-content-click="false"
-                                        :nudge-right="40" transition="scale-transition" offset-y min-width="290px">
-                                        <template v-slot:activator="{ on, attrs }">
-                                            <v-text-field v-model="updateItem.EndTime" label="领取结束时间" dense
-                                                prepend-icon="event" readonly v-bind="attrs" v-on="on"></v-text-field>
-                                        </template>
-                                        <v-date-picker v-model="updateItem.EndTime"
-                                            @input="datePickSettings.endTimeMenu = false"></v-date-picker>
-                                    </v-menu>
-                                </v-col>
-                            </v-row>
-
-                            <!--总可兑换数量-->
-                            <!--每个用户可兑换数量-->
-                            <!--是否需要优惠码-->
-                            <!--优惠码-->
-                            <v-row>
-                                <v-col cols="12" md="3">
-                                    <v-text-field v-model="updateItem.TotalExchangeQuantity" dense placeholder="0"
-                                        label="总可兑换数量" :error-messages="errorMessages" ref="EntityTotalExchangeQuantity"
-                                        type="number">
-                                    </v-text-field>
-                                </v-col>
-                                <v-col cols="12" md="3">
-                                    <v-text-field v-model="updateItem.ExchangeQuantityByPerPerson" dense placeholder="0"
-                                        label="每个用户可兑换数量" :error-messages="errorMessages"
-                                        ref="EntityExchangeQuantityByPerPerson" type="number">
-                                    </v-text-field>
-                                </v-col>
-                                <v-col cols="12" md="2">
-                                    <v-switch v-model="updateItem.RequiresCouponCode" label="是否可累积"></v-switch>
-                                </v-col>
-                                <v-col cols="12" md="4">
-                                    <v-text-field v-model="updateItem.CouponCode" dense label="优惠码"
-                                        :placeholder="updateItem.RequiresCouponCode?'请输入优惠码':'无'"
-                                        :error-messages="errorMessages" ref="EntityCouponCode"
-                                        :disabled="!updateItem.RequiresCouponCode">
-                                    </v-text-field>
-                                </v-col>
-                            </v-row>
-
-                            <!--有效期方式-->
-                            <!--有效期天数-->
-                            <!--有效期开始时间-->
-                            <!--有效期结束时间-->
-                            <v-row>
-                                <v-col cols="12" md="2">
-                                    <v-select :items="termOfValidityTypeList" dense label="有效期方式" item-text="Name"
-                                        item-value="Id" placeholder="请选择有效期方式" v-model="updateItem.TermOfValidityType">
-                                    </v-select>
-                                </v-col>
-                                <v-col cols="12" md="4">
-                                    <v-menu v-model="datePickSettings.termOfValidityBeginTimeMenu"
-                                        :close-on-content-click="false" :nudge-right="40" transition="scale-transition"
-                                        offset-y min-width="290px">
-                                        <template v-slot:activator="{ on, attrs }">
-                                            <v-text-field v-model="updateItem.TermOfValidityBeginTime" label="有效期开始时间"
-                                                dense prepend-icon="event" readonly v-bind="attrs" v-on="on"
-                                                :disabled="updateItem.TermOfValidityType !== 2"></v-text-field>
-                                        </template>
-                                        <v-date-picker v-model="updateItem.TermOfValidityBeginTime"
-                                            @input="datePickSettings.termOfValidityBeginTimeMenu = false">
-                                        </v-date-picker>
-                                    </v-menu>
-                                </v-col>
-                                <v-col cols="12" md="4">
-                                    <v-menu v-model="datePickSettings.termOfValidityEndTimeMenu"
-                                        :close-on-content-click="false" :nudge-right="40" transition="scale-transition"
-                                        offset-y min-width="290px">
-                                        <template v-slot:activator="{ on, attrs }">
-                                            <v-text-field v-model="updateItem.TermOfValidityEndTime" label="有效期结束时间"
-                                                dense prepend-icon="event" readonly v-bind="attrs" v-on="on"
-                                                :disabled="updateItem.TermOfValidityType !== 2"></v-text-field>
-                                        </template>
-                                        <v-date-picker v-model="updateItem.TermOfValidityEndTime"
-                                            @input="datePickSettings.termOfValidityEndTimeMenu = false"></v-date-picker>
-                                    </v-menu>
-                                </v-col>
-                                <v-col cols="12" md="2">
-                                    <v-text-field v-model="updateItem.TermOfValidityDays" dense placeholder="0"
-                                        label="有效期天数" :error-messages="errorMessages" ref="EntityTermOfValidityDays"
-                                        type="number" :disabled="updateItem.TermOfValidityType !== 1">
-                                    </v-text-field>
-                                </v-col>
-                            </v-row>
-
-                            <!--优惠券适用类型-->
-                            <v-row>
-                                <v-col>
-                                    <v-select :items="appliedToTypeList" dense label="优惠券适用类型" item-text="Name"
-                                        item-value="Id" placeholder="请选择优惠券适用类型" v-model="updateItem.AppliedToType">
-                                    </v-select>
-                                </v-col>
-                            </v-row>
-                            <template v-if="updateItem.AppliedToType === 2">
-                                <v-row>
-                                    <v-col cols="12" md="12">
-                                        <label class="v-label v-label--active theme--light"
-                                            style="left: 0px; right: auto; font-size: 12px;">课程分类</label>
-                                        <el-cascader :options="lessonCategories.list" clearable
-                                            v-model="lessonCategories.selected"
-                                            :props="lessonCategories.selectProps" style="width: 100%;"
-                                            placeholder="请选择分类" ref="lessonCategoriesSelector">
-                                        </el-cascader>
-                                        <div class="v-messages theme--light"></div>
-                                    </v-col>
-                                </v-row>
-                            </template>
-                            <template v-else-if="updateItem.AppliedToType === 3">
-                                <v-card>
-                                    <!--关联课程-->
-                                    <v-row>
-                                        <v-col>
-                                            <template
-                                                v-if="updateItem.AppliedToLessons && updateItem.AppliedToLessons.length > 0">
-                                                <v-card class="mt-0 mb-0 ml-12 mr-12" outlined>
-                                                    <v-row>
-                                                        <v-col>
-                                                            <v-simple-table fixed-header class="pl-4 pr-4">
-                                                                <thead>
-                                                                    <tr>
-                                                                        <th class="text-left">Id</th>
-                                                                        <th class="text-left">课程名称</th>
-                                                                        <th class="text-left">创建时间</th>
-                                                                        <th class="text-left">操作</th>
-                                                                    </tr>
-                                                                </thead>
-                                                                <tbody>
-                                                                    <template
-                                                                        v-if="updateItem.AppliedToLessons && updateItem.AppliedToLessons.length > 0">
-                                                                        <tr v-for="item in updateItem.AppliedToLessons"
-                                                                            :key="item.Id">
-                                                                            <td>{{ item.Id }}</td>
-                                                                            <td>{{ item.Title }}</td>
-                                                                            <td>{{ item.Created }}</td>
-                                                                            <td>
-                                                                                <v-icon size="20" color="deep-orange"
-                                                                                    @click="lessonDelete(item)">
-                                                                                    mdi-delete-forever</v-icon>
-                                                                            </td>
-                                                                        </tr>
-                                                                    </template>
-                                                                </tbody>
-                                                            </v-simple-table>
-                                                        </v-col>
-                                                    </v-row>
-                                                </v-card>
-                                            </template>
-                                            <template v-else>
-                                                <v-row>
-                                                    <v-col class="d-flex justify-center align-center">
-                                                        <span class="ma-4">未添加课程</span>
-                                                    </v-col>
-                                                </v-row>
-                                            </template>
-                                            <v-row>
-                                                <v-col class="d-flex justify-center align-center">
-                                                    <v-btn @click="lessonSelectorShow" small color="light-blue darken-1">
-                                                        <span style="color: white;">添加课程</span>
-                                                    </v-btn>
-                                                </v-col>
-                                            </v-row>
-                                        </v-col>
-                                    </v-row>
-                                </v-card>
-                            </template>
-                            <template v-else-if="updateItem.AppliedToType === 4">
-                                <v-card>
-                                    <!--任课讲师-->
+                        <v-tabs-items v-model="tabsSetting.tab">
+                            <!--基本信息-->
+                            <v-tab-item :key="1">
+                                <v-container>
+                                    <!--名称-->
+                                    <!--排序-->
+                                    <!--状态-->
+                                    <!--是否可累积-->
+                                    <!--是否启用-->
                                     <v-row>
                                         <v-col cols="12" md="12">
-                                            <template v-if="updateItem.AppliedToLecturers && updateItem.AppliedToLecturers.length">
-                                                <v-card class="mt-0 mb-0 ml-12 mr-12" outlined>
-                                                    <v-row>
-                                                        <v-col>
-                                                            <v-simple-table fixed-header class="pl-4 pr-4">
-                                                                <thead>
-                                                                    <tr>
-                                                                        <th class="text-left">Id</th>
-                                                                        <th class="text-left">姓名</th>
-                                                                        <th class="text-left">关联机构</th>
-                                                                        <th class="text-left">操作</th>
-                                                                    </tr>
-                                                                </thead>
-                                                                <tbody>
-                                                                    <template
-                                                                        v-if="updateItem.AppliedToLecturers && updateItem.AppliedToLecturers.length > 0">
-                                                                        <tr v-for="item in updateItem.AppliedToLecturers"
-                                                                            :key="item.Id">
-                                                                            <td>{{ item.Id }}</td>
-                                                                            <td>{{ item.RealName }}</td>
-                                                                            <td>
-                                                                                <template
-                                                                                    v-if="item.Departments && item.Departments.length">
-                                                                                    <v-row
-                                                                                        v-for="d in item.Departments"
-                                                                                        class="mt-1 mb-1">
-                                                                                        <v-chip small>
-                                                                                            <template
-                                                                                                v-if="d.Company">{{d.Company.Title + ' - '}}</template>
-                                                                                            {{d.Title}}
-                                                                                        </v-chip>
-                                                                                    </v-row>
-                                                                                </template>
-                                                                            </td>
-                                                                            <td>
-                                                                                <v-icon size="20"
-                                                                                    color="deep-orange"
-                                                                                    @click="lecturerDelete(item)">
-                                                                                    mdi-delete-forever</v-icon>
-                                                                            </td>
-                                                                        </tr>
-                                                                    </template>
-                                                                </tbody>
-                                                            </v-simple-table>
-                                                        </v-col>
-                                                    </v-row>
-                                                </v-card>
-                                            </template>
-                                            <template v-else>
-                                                <v-row>
-                                                    <v-col class="d-flex justify-center align-center">
-                                                        <span class="ma-4">未添加讲师</span>
-                                                    </v-col>
-                                                </v-row>
-                                            </template>
-                                            <v-row>
-                                                <v-col class="d-flex justify-center align-center">
-                                                    <v-btn @click="lecturerSelectorShow" small
-                                                        color="light-blue darken-1" dark>
-                                                        添加讲师
-                                                    </v-btn>
-                                                </v-col>
-
-                                            </v-row>
+                                            <v-text-field v-model="updateItem.Title" dense label="名称" placeholder="请输入名称"
+                                                :rules="[() => !!updateItem.Title || '不能为空.']" :error-messages="errorMessages"
+                                                ref="EntityTitle">
+                                            </v-text-field>
                                         </v-col>
                                     </v-row>
-                                </v-card>
-                            </template>
+                                    <v-row>
+                                        <v-col cols="12" md="6">
+                                            <v-text-field v-model="updateItem.DisplayOrder" label="排序" dense placeholder="请输入排序"
+                                                :error-messages="errorMessages" ref="EntityDisplayOrder" type="number">
+                                            </v-text-field>
+                                        </v-col>
+                                        <v-col cols="12" md="6">
+                                            <v-select :items="statusList" dense label="状态" item-text="Name" item-value="Id"
+                                                placeholder="请选择状态" v-model="updateItem.Status">
+                                            </v-select>
+                                        </v-col>
+                                    </v-row>
+                                    <v-row>
+                                        <v-col cols="12" md="6">
+                                            <v-switch v-model="updateItem.IsCumulative" label="是否可累积"></v-switch>
+                                        </v-col>
+                                        <v-col cols="12" md="6">
+                                            <v-switch v-model="updateItem.Enable" label="是否启用"></v-switch>
+                                        </v-col>
+                                    </v-row>
 
+                                    <!--封面-->
+                                    <v-subheader>封面</v-subheader>
+                                    <v-divider></v-divider>
+                                    <v-row>
+                                        <v-col cols="12" md="12">
+                                            <v-card outlined class="pr-4 pl-4 pb-4">
+                                                <template>
+                                                    <template
+                                                        v-if="updateItem.ImageThumb_PictureUrl && updateItem.ImageThumb_PictureUrl !== ''">
+                                                        <v-img width="100%" height="200" contain
+                                                            :src="updateItem.ImageThumb_PictureUrl" aspect-ratio="1"
+                                                            ref="Entity_ImageThumb_PictureUrl">
+                                                        </v-img>
+                                                    </template>
+                                                    <template v-else>
+                                                        <div class="d-flex justify-center align-center"
+                                                            style="width: 100%; height: 200px;">
+                                                            <span class="subtitle-1">请选择图片</span>
+                                                        </div>
+                                                    </template>
+                                                    <input type="hidden" v-model="updateItem.ImageThumb_PictureId"
+                                                        ref="Entity_ImageThumb_PictureId" />
+                                                    <div class="d-flex justify-center mt-2">
+                                                        <v-btn
+                                                            @click="pictureSelectorShow('ImageThumb_PictureId', 'ImageThumb_PictureUrl')"
+                                                            class="mr-12" small color="light-blue darken-1" dark>
+                                                            选择图片
+                                                        </v-btn>
+                                                        <v-btn
+                                                            @click="updateItem.ImageThumb_PictureId=0;updateItem.ImageThumb_PictureUrl=''"
+                                                            small color="light-blue darken-1" dark>
+                                                            删除图片
+                                                        </v-btn>
+                                                    </div>
+                                                </template>
 
-                            <!--封面-->
-                            <v-subheader>封面</v-subheader>
-                            <v-divider></v-divider>
-                            <v-row>
-                                <v-col cols="12" md="12">
-                                    <v-card outlined class="pr-4 pl-4 pb-4">
-                                        <template>
-                                            <template
-                                                v-if="updateItem.ImageThumb_PictureUrl && updateItem.ImageThumb_PictureUrl !== ''">
-                                                <v-img width="100%" height="200" contain
-                                                    :src="updateItem.ImageThumb_PictureUrl" aspect-ratio="1"
-                                                    ref="Entity_ImageThumb_PictureUrl">
-                                                </v-img>
-                                            </template>
-                                            <template v-else>
-                                                <div class="d-flex justify-center align-center"
-                                                    style="width: 100%; height: 200px;">
-                                                    <span class="subtitle-1">请选择图片</span>
+                                            </v-card>
+                                        </v-col>
+
+                                    </v-row>
+                                </v-container>
+                            </v-tab-item>
+
+                            <!--优惠信息-->
+                            <v-tab-item :key="2">
+                                <v-container>
+                                    <!--优惠券类型-->
+                                    <!--满多少(满减券)-->
+                                    <!--减多少(满减券)-->
+                                    <!--折扣率(折扣券)100为基数-->
+                                    <v-row>
+                                        <v-col cols="12" md="4">
+                                            <v-select :items="couponTypeList" dense label="优惠券类型" item-text="Name"
+                                                item-value="Id" placeholder="请选择优惠券类型" v-model="updateItem.CouponType">
+                                            </v-select>
+                                        </v-col>
+                                        <v-col cols="12" md="8">
+                                            <v-row class="ml-2">
+                                                <span class="item-text-style">满</span>
+                                                <div style="width: 80px;">
+                                                    <v-text-field v-model="updateItem.BaseAmount" dense placeholder="0"
+                                                        :error-messages="errorMessages" ref="EntityBaseAmount" type="number">
+                                                    </v-text-field>
                                                 </div>
-                                            </template>
-                                            <input type="hidden" v-model="updateItem.ImageThumb_PictureId"
-                                                ref="Entity_ImageThumb_PictureId" />
-                                            <div class="d-flex justify-center mt-2">
-                                                <v-btn
-                                                    @click="pictureSelectorShow('ImageThumb_PictureId', 'ImageThumb_PictureUrl')"
-                                                    class="mr-12" small color="light-blue darken-1" dark>
-                                                    选择图片
-                                                </v-btn>
-                                                <v-btn
-                                                    @click="updateItem.ImageThumb_PictureId=0;updateItem.ImageThumb_PictureUrl=''"
-                                                    small color="light-blue darken-1" dark>
-                                                    删除图片
-                                                </v-btn>
-                                            </div>
-                                        </template>
 
-                                    </v-card>
-                                </v-col>
+                                                <template v-if="updateItem.CouponType === 1 || updateItem.CouponType === 2">
+                                                    <span class="item-text-style">元 </span>
+                                                </template>
+                                                <template v-else-if="updateItem.CouponType === 3">
+                                                    <span class="item-text-style">件 </span>
+                                                </template>
+                                                <template v-if="updateItem.CouponType === 1">
+                                                    <span class="item-text-style">减</span>
+                                                    <div style="width: 80px;">
+                                                        <v-text-field v-model="updateItem.DiscountAmount" dense placeholder="0"
+                                                            :error-messages="errorMessages" ref="EntityDiscountAmount"
+                                                            type="number">
+                                                        </v-text-field>
+                                                    </div>
 
-                            </v-row>
+                                                    <span class="item-text-style">元</span>
+                                                </template>
+                                                <template
+                                                    v-else-if="updateItem.CouponType === 2 || updateItem.CouponType === 3">
+                                                    <span class="item-text-style">打</span>
+                                                    <div style="width: 80px;">
+                                                        <v-text-field v-model="updateItem.DiscountPercentage" dense
+                                                            placeholder="0" :error-messages="errorMessages"
+                                                            ref="EntityDiscountPercentage" type="number">
+                                                        </v-text-field>
+                                                    </div>
+                                                    <span class="item-text-style">折</span>
+                                                </template>
+                                            </v-row>
+                                        </v-col>
 
-                            <!--介绍-->
-                            <v-subheader class="mt-3">优惠券说明</v-subheader>
-                            <v-divider></v-divider>
-                            <v-row>
-                                <v-col cols="12" md="12">
-                                    <tinymce ref="editor" v-model="updateItem.Content" />
-                                </v-col>
-                            </v-row>
+                                    </v-row>
 
-                        </v-container>
+                                    <!--领取开始时间-->
+                                    <!--领取结束时间-->
+                                    <v-row>
+                                        <v-col cols="12" md="6">
+                                            <v-menu v-model="datePickSettings.beginTimeMenu" :close-on-content-click="false"
+                                                :nudge-right="40" transition="scale-transition" offset-y min-width="290px">
+                                                <template v-slot:activator="{ on, attrs }">
+                                                    <v-text-field v-model="updateItem.BeginTime" label="领取开始时间" dense
+                                                        prepend-icon="event" readonly v-bind="attrs" v-on="on"></v-text-field>
+                                                </template>
+                                                <v-date-picker v-model="updateItem.BeginTime"
+                                                    @input="datePickSettings.beginTimeMenu = false"></v-date-picker>
+                                            </v-menu>
+                                        </v-col>
+                                    </v-row>
+                                    <v-row>
+                                        <v-col cols="12" md="6">
+                                            <v-menu v-model="datePickSettings.endTimeMenu" :close-on-content-click="false"
+                                                :nudge-right="40" transition="scale-transition" offset-y min-width="290px">
+                                                <template v-slot:activator="{ on, attrs }">
+                                                    <v-text-field v-model="updateItem.EndTime" label="领取结束时间" dense
+                                                        prepend-icon="event" readonly v-bind="attrs" v-on="on"></v-text-field>
+                                                </template>
+                                                <v-date-picker v-model="updateItem.EndTime"
+                                                    @input="datePickSettings.endTimeMenu = false"></v-date-picker>
+                                            </v-menu>
+                                        </v-col>
+                                    </v-row>
+                                </v-container>
+                            </v-tab-item>
+
+                            <!--优惠券介绍-->
+                            <v-tab-item :key="3">
+                                <v-container>
+                                    <!--介绍-->
+                                    <v-subheader class="mt-3">优惠券说明</v-subheader>
+                                    <v-divider></v-divider>
+                                    <v-row>
+                                        <v-col cols="12" md="12">
+                                            <tinymce ref="editor" v-model="updateItem.Content" />
+                                        </v-col>
+                                    </v-row>
+                                </v-container>
+                            </v-tab-item>
+
+                            <!--兑换信息-->
+                            <v-tab-item :key="4">
+                                <v-container>
+                                    <!--总可兑换数量-->
+                                    <!--每个用户可兑换数量-->
+                                    <!--是否需要优惠码-->
+                                    <!--优惠码-->
+                                    <v-row>
+                                        <v-col cols="12" md="6">
+                                            <v-text-field v-model="updateItem.TotalExchangeQuantity" dense placeholder="0"
+                                                label="总可兑换数量" :error-messages="errorMessages" ref="EntityTotalExchangeQuantity"
+                                                type="number">
+                                            </v-text-field>
+                                        </v-col>
+                                        
+                                    </v-row>
+                                    <v-row>
+                                        <v-col cols="12" md="6">
+                                            <v-text-field v-model="updateItem.ExchangeQuantityByPerPerson" dense placeholder="0"
+                                                label="每个用户可兑换数量" :error-messages="errorMessages"
+                                                ref="EntityExchangeQuantityByPerPerson" type="number">
+                                            </v-text-field>
+                                        </v-col>
+                                    </v-row>
+                                    <v-row>
+                                        <v-col cols="12" md="2">
+                                            <v-switch v-model="updateItem.RequiresCouponCode" label="是否使用优惠码"></v-switch>
+                                        </v-col>
+                                    </v-row>
+                                    <v-row>
+                                        <v-col cols="12" md="6">
+                                            <v-text-field v-model="updateItem.CouponCode" dense label="优惠码"
+                                                :placeholder="updateItem.RequiresCouponCode?'请输入优惠码':'无'"
+                                                :error-messages="errorMessages" ref="EntityCouponCode"
+                                                :disabled="!updateItem.RequiresCouponCode">
+                                            </v-text-field>
+                                        </v-col>
+                                    </v-row>
+                                </v-container>
+                            </v-tab-item>
+
+                            <!--有效期限-->
+                            <v-tab-item :key="5">
+                                <v-container>
+                                    <!--有效期方式-->
+                                    <!--有效期天数-->
+                                    <!--有效期开始时间-->
+                                    <!--有效期结束时间-->
+                                    <v-row>
+                                        <v-col cols="12" md="6">
+                                            <v-select :items="termOfValidityTypeList" dense label="有效期方式" item-text="Name"
+                                                item-value="Id" placeholder="请选择有效期方式" v-model="updateItem.TermOfValidityType">
+                                            </v-select>
+                                        </v-col>
+                                    </v-row>
+                                    <v-row>
+                                        <v-col cols="12" md="6">
+                                            <v-menu v-model="datePickSettings.termOfValidityBeginTimeMenu"
+                                                :close-on-content-click="false" :nudge-right="40" transition="scale-transition"
+                                                offset-y min-width="290px">
+                                                <template v-slot:activator="{ on, attrs }">
+                                                    <v-text-field v-model="updateItem.TermOfValidityBeginTime" label="有效期开始时间"
+                                                        dense prepend-icon="event" readonly v-bind="attrs" v-on="on"
+                                                        :disabled="updateItem.TermOfValidityType !== 2"></v-text-field>
+                                                </template>
+                                                <v-date-picker v-model="updateItem.TermOfValidityBeginTime"
+                                                    @input="datePickSettings.termOfValidityBeginTimeMenu = false">
+                                                </v-date-picker>
+                                            </v-menu>
+                                        </v-col>
+                                    </v-row>
+                                    <v-row>
+                                        <v-col cols="12" md="6">
+                                            <v-menu v-model="datePickSettings.termOfValidityEndTimeMenu"
+                                                :close-on-content-click="false" :nudge-right="40" transition="scale-transition"
+                                                offset-y min-width="290px">
+                                                <template v-slot:activator="{ on, attrs }">
+                                                    <v-text-field v-model="updateItem.TermOfValidityEndTime" label="有效期结束时间"
+                                                        dense prepend-icon="event" readonly v-bind="attrs" v-on="on"
+                                                        :disabled="updateItem.TermOfValidityType !== 2"></v-text-field>
+                                                </template>
+                                                <v-date-picker v-model="updateItem.TermOfValidityEndTime"
+                                                    @input="datePickSettings.termOfValidityEndTimeMenu = false"></v-date-picker>
+                                            </v-menu>
+                                        </v-col>
+                                    </v-row>
+                                    <v-row>
+                                        <v-col cols="12" md="6">
+                                            <v-text-field v-model="updateItem.TermOfValidityDays" dense placeholder="0"
+                                                label="有效期天数" :error-messages="errorMessages" ref="EntityTermOfValidityDays"
+                                                type="number" :disabled="updateItem.TermOfValidityType !== 1">
+                                            </v-text-field>
+                                        </v-col>
+                                    </v-row>
+                                </v-container>
+                            </v-tab-item>
+
+                            <!--适用范围-->
+                            <v-tab-item :key="6">
+                                <v-container>
+                                    <!--优惠券适用类型-->
+                                    <v-row>
+                                        <v-col>
+                                            <v-select :items="appliedToTypeList" dense label="优惠券适用类型" item-text="Name"
+                                                item-value="Id" placeholder="请选择优惠券适用类型" v-model="updateItem.AppliedToType">
+                                            </v-select>
+                                        </v-col>
+                                    </v-row>
+                                    <template v-if="updateItem.AppliedToType === 2">
+                                        <v-row>
+                                            <v-col cols="12" md="12">
+                                                <label class="v-label v-label--active theme--light"
+                                                    style="left: 0px; right: auto; font-size: 12px;">课程分类</label>
+                                                <el-cascader :options="lessonCategories.list" clearable
+                                                    v-model="lessonCategories.selected"
+                                                    :props="lessonCategories.selectProps" style="width: 100%;"
+                                                    placeholder="请选择分类" ref="lessonCategoriesSelector">
+                                                </el-cascader>
+                                                <div class="v-messages theme--light"></div>
+                                            </v-col>
+                                        </v-row>
+                                    </template>
+                                    <template v-else-if="updateItem.AppliedToType === 3">
+                                        <v-card>
+                                            <!--关联课程-->
+                                            <v-row>
+                                                <v-col>
+                                                    <template
+                                                        v-if="updateItem.AppliedToLessons && updateItem.AppliedToLessons.length > 0">
+                                                        <v-card class="mt-0 mb-0 ml-12 mr-12" outlined>
+                                                            <v-row>
+                                                                <v-col>
+                                                                    <v-simple-table fixed-header class="pl-4 pr-4">
+                                                                        <thead>
+                                                                            <tr>
+                                                                                <th class="text-left">Id</th>
+                                                                                <th class="text-left">课程名称</th>
+                                                                                <th class="text-left">创建时间</th>
+                                                                                <th class="text-left">操作</th>
+                                                                            </tr>
+                                                                        </thead>
+                                                                        <tbody>
+                                                                            <template
+                                                                                v-if="updateItem.AppliedToLessons && updateItem.AppliedToLessons.length > 0">
+                                                                                <tr v-for="item in updateItem.AppliedToLessons"
+                                                                                    :key="item.Id">
+                                                                                    <td>{{ item.Id }}</td>
+                                                                                    <td>{{ item.Title }}</td>
+                                                                                    <td>{{ item.Created }}</td>
+                                                                                    <td>
+                                                                                        <v-icon size="20" color="deep-orange"
+                                                                                            @click="lessonDelete(item)">
+                                                                                            mdi-delete-forever</v-icon>
+                                                                                    </td>
+                                                                                </tr>
+                                                                            </template>
+                                                                        </tbody>
+                                                                    </v-simple-table>
+                                                                </v-col>
+                                                            </v-row>
+                                                        </v-card>
+                                                    </template>
+                                                    <template v-else>
+                                                        <v-row>
+                                                            <v-col class="d-flex justify-center align-center">
+                                                                <span class="ma-4">请添加适用课程</span>
+                                                            </v-col>
+                                                        </v-row>
+                                                    </template>
+                                                    <v-row>
+                                                        <v-col class="d-flex justify-center align-center">
+                                                            <v-btn @click="lessonSelectorShow" small color="light-blue darken-1">
+                                                                <span style="color: white;">添加课程</span>
+                                                            </v-btn>
+                                                        </v-col>
+                                                    </v-row>
+                                                </v-col>
+                                            </v-row>
+                                        </v-card>
+                                    </template>
+                                    <template v-else-if="updateItem.AppliedToType === 4">
+                                        <v-card>
+                                            <!--任课讲师-->
+                                            <v-row>
+                                                <v-col cols="12" md="12">
+                                                    <template v-if="updateItem.AppliedToLecturers && updateItem.AppliedToLecturers.length">
+                                                        <v-card class="mt-0 mb-0 ml-12 mr-12" outlined>
+                                                            <v-row>
+                                                                <v-col>
+                                                                    <v-simple-table fixed-header class="pl-4 pr-4">
+                                                                        <thead>
+                                                                            <tr>
+                                                                                <th class="text-left">Id</th>
+                                                                                <th class="text-left">姓名</th>
+                                                                                <th class="text-left">关联机构</th>
+                                                                                <th class="text-left">操作</th>
+                                                                            </tr>
+                                                                        </thead>
+                                                                        <tbody>
+                                                                            <template
+                                                                                v-if="updateItem.AppliedToLecturers && updateItem.AppliedToLecturers.length > 0">
+                                                                                <tr v-for="item in updateItem.AppliedToLecturers"
+                                                                                    :key="item.Id">
+                                                                                    <td>{{ item.Id }}</td>
+                                                                                    <td>{{ item.RealName }}</td>
+                                                                                    <td>
+                                                                                        <template
+                                                                                            v-if="item.Departments && item.Departments.length">
+                                                                                            <v-row
+                                                                                                v-for="d in item.Departments"
+                                                                                                class="mt-1 mb-1">
+                                                                                                <v-chip small>
+                                                                                                    <template
+                                                                                                        v-if="d.Company">{{d.Company.Title + ' - '}}</template>
+                                                                                                    {{d.Title}}
+                                                                                                </v-chip>
+                                                                                            </v-row>
+                                                                                        </template>
+                                                                                    </td>
+                                                                                    <td>
+                                                                                        <v-icon size="20"
+                                                                                            color="deep-orange"
+                                                                                            @click="lecturerDelete(item)">
+                                                                                            mdi-delete-forever</v-icon>
+                                                                                    </td>
+                                                                                </tr>
+                                                                            </template>
+                                                                        </tbody>
+                                                                    </v-simple-table>
+                                                                </v-col>
+                                                            </v-row>
+                                                        </v-card>
+                                                    </template>
+                                                    <template v-else>
+                                                        <v-row>
+                                                            <v-col class="d-flex justify-center align-center">
+                                                                <span class="ma-4">请添加关联讲师</span>
+                                                            </v-col>
+                                                        </v-row>
+                                                    </template>
+                                                    <v-row>
+                                                        <v-col class="d-flex justify-center align-center">
+                                                            <v-btn @click="lecturerSelectorShow" small
+                                                                color="light-blue darken-1" dark>
+                                                                添加讲师
+                                                            </v-btn>
+                                                        </v-col>
+
+                                                    </v-row>
+                                                </v-col>
+                                            </v-row>
+                                        </v-card>
+                                    </template>
+                                </v-container>
+                            </v-tab-item>
+                        </v-tabs-items>
+
                     </v-card-text>
 
                 </v-card>
@@ -721,6 +778,11 @@
                     termOfValidityEndTimeMenu: false,
                 },
 
+                //tab 设置
+                tabsSetting: {
+                    tab: null,
+                },
+
             }
         },
 
@@ -876,6 +938,39 @@
                 }
             },
 
+            // # region 保存适用类型
+
+            saveCouponAppliedTo(couponId) {
+                let appliedType = this.updateItem.AppliedToType;
+            },
+
+            saveCouponAppliedToCategories(couponId) {
+                return new Promise((resolve, reject) => {
+                    this.postAxios(this.baseApiPath + '/SaveCouponAppliedToCategories', JSON.stringify({
+                        couponId: couponId,
+                        categories: null,
+                    })).then((data) => {
+                        if(data.errorcode === 0) {
+                            resolve(data);
+                        } else {
+                            resolve(data);
+                        }
+                    }).catch((error) => {
+                        reject(error);
+                    });
+                });
+            },
+
+            saveCouponAppliedToLesson(couponId) {
+
+            },
+
+            saveCouponAppliedToLecturer(couponId) {
+
+            },
+
+            // # endregion
+
             closeUpdate: function () {
                 this.updateDialog.isShow = false;
             },
@@ -1027,13 +1122,13 @@
                 let res = '';
                 switch (coupontype) {
                     case 1:
-                        name = '满减券';
+                        res = '满减券';
                         break;
                     case 2:
-                        name = '折扣券(满金额)';
+                        res = '折扣券(满金额)';
                         break;
                     case 3:
-                        name = '折扣券(满件数)';
+                        res = '折扣券(满件数)';
                         break;
                     default:
                         break;
@@ -1045,10 +1140,10 @@
                 let res = '';
                 switch (termOfValidityType) {
                     case 1:
-                        name = '按天数';
+                        res = '按天数';
                         break;
                     case 2:
-                        name = '按时间限制';
+                        res = '按时间限制';
                         break;
                     default:
                         break;
@@ -1060,16 +1155,16 @@
                 let res = '';
                 switch (appliedToType) {
                     case 1:
-                        name = '全部课程';
+                        res = '全部课程';
                         break;
                     case 2:
-                        name = '按课程分类';
+                        res = '按课程分类';
                         break;
                     case 3:
-                        name = '按课程';
+                        res = '按课程';
                         break;
                     case 4:
-                        name = '按讲师';
+                        res = '按讲师';
                         break;
                     default:
                         break;

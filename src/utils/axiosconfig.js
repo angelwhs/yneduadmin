@@ -1,5 +1,7 @@
 export const baseURL = 'http://localhost:5000/';
 
+//export const baseURL = 'http://www.ddup.pro:5000/';
+
 //export const baseURL = 'http://sdfzcms.yntzy.cn/api/';
 
 
