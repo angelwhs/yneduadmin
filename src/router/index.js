@@ -81,13 +81,13 @@ const router = new Router({
                 },
                 {
                     path: "/cms/articlecomment",
-                    name: "ArticleManage",
+                    name: "ArticleCommentManage",
                     meta: { title: "评论管理", group: "apps", icon: "dashboard" },
                     component: () => import(/* webpackChunkName: "role" */ "@/views/cms/articlecomment.vue")
                 },
                 {
-                    path: "/cms/contentaudit",
-                    name: "ArticleManage",
+                    path: "/cms/audit",
+                    name: "ContentAuditManage",
                     meta: { title: "审核管理", group: "apps", icon: "dashboard" },
                     component: () => import(/* webpackChunkName: "role" */ "@/views/cms/contentaudit.vue")
                 },
