@@ -1,7 +1,7 @@
 <template>
     <v-layout row class="align-center layout px-4 pt-4 app--page-header">
         <div class="page-header-left">
-            <h3 class="pr-3">{{ $route.meta.title || '' }}</h3>
+            <div class="grey--text text--darken-3 ml-6" style="font-size: 20px;">{{ $route.meta.title || '' }}</div>
         </div>
         <!-- <v-breadcrumbs divider="-" :items="breadcrumbs">
             <template v-slot:item="props">

@@ -21,15 +21,15 @@
                         页面信息
                     </v-card-title>
                     <v-card-text>
-                        <p class="ml-6 mt-2 mb-1 grey--text text--darken-1">
+                        <span class="ml-6 mt-2 mb-1 grey--text text--darken-1">
                             Id：{{ pageLayout.Id }}
-                        </p>
-                        <p class="ml-6 mt-2 mb-1 grey--text text--darken-1">
+                        </span>
+                        <span class="ml-6 mt-2 mb-1 grey--text text--darken-1">
                             名称：{{ pageLayout.Title }}
-                        </p>
-                        <p class="ml-6 mt-2 mb-1 grey--text text--darken-1">
+                        </span>
+                        <span class="ml-6 mt-2 mb-1 grey--text text--darken-1">
                             类型：{{ getLayoutTypeName(pageLayout.LayoutType) }}
-                        </p>
+                        </span>
                     </v-card-text>
                 </v-card>
             </div>
@@ -451,10 +451,16 @@
         },
 
         created() {
+            
+        },
+
+        mounted() {
             this.searchArticleContentSection();
 
             let pageLayoutId = this.$route.params.id;
             this.getPageLayout(pageLayoutId);
+
+            this.search(0);
         },
 
         methods: {

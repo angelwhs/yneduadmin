@@ -6,7 +6,8 @@
                 <v-card class="mx-auto">
                     <v-row class="mx-auto ">
                         <v-col cols="12" md="5" class="d-flex justify-center align-center">
-                            <v-text-field class="subtitle-2 ml-4" v-model="searchModel.searchName" label="搜索条件" placeholder="请输入搜索条件">
+                            <v-text-field class="subtitle-2 ml-4" v-model="searchModel.searchName" label="搜索条件"
+                                placeholder="请输入搜索条件">
                             </v-text-field>
                         </v-col>
                         <v-col cols="12" md="5" class="d-flex justify-center align-center">
@@ -55,7 +56,8 @@
                                         <td>{{ item.Created }}</td>
                                         <td>
                                             <template v-if="item.State === 1">
-                                                <v-btn small outlined color="success" class="mr-4" @click="openAudit(item)">
+                                                <v-btn small outlined color="success" class="mr-4"
+                                                    @click="openAudit(item)">
                                                     已通过
                                                 </v-btn>
                                             </template>
@@ -71,7 +73,8 @@
                                                 </v-btn>
                                             </template>
                                             <template v-else-if="item.State === 4">
-                                                <v-btn small outlined color="primary" class="mr-4" @click="openAudit(item)">
+                                                <v-btn small outlined color="primary" class="mr-4"
+                                                    @click="openAudit(item)">
                                                     审核中
                                                 </v-btn>
                                             </template>
@@ -115,19 +118,85 @@
                     <v-card-text>
                         <v-container>
                             <!--内容信息-->
+                            <!--如果是文章-->
+                            <p class="subtitle-1 font-weight-black mb-1">审核内容</p>
+                            <v-divider></v-divider>
+                            <template v-if="updateItem.ContentType === 1 && updateItem.Article">
+                                <div class="mt-4 mb-4 subtitle-1">
+                                    <span class="">审核内容类型：<span class="font-weight-black">文章</span></span>
+                                    <span class="ml-6">文章标题：<span
+                                            class="font-weight-black">{{updateItem.Article.Title}}</span></span>
+                                    <span class="ml-6">作者：<span
+                                            class="font-weight-black">{{updateItem.Article.CreateByName}}</span></span>
+                                    <span class="ml-6">创作时间：<span
+                                            class="font-weight-black">{{updateItem.Article.Created}}</span></span>
+                                </div>
 
+                                <p class="mb-1 subtitle-1">文章内容：</p>
+                                <div style="width: 100%; height: 300px; overflow:auto; border-radius:5px; border:1px solid #BBBBBB;padding: 8px;"
+                                    v-html="updateItem.Article.ArticleContent">
+                                </div>
+                            </template>
+                            <!--如果是评论-->
+                            <template v-else-if="updateItem.ContentType === 2">
 
-                            <!--填写审核内容-->
-                            <v-row>
-                                
-                            </v-row>
+                            </template>
 
-                            <!--已有的审核流程-->
+                            <!--填写审核-->
+                            <p class="subtitle-1 font-weight-black mt-6 mb-1">审核选项</p>
+                            <v-divider></v-divider>
+                            <v-radio-group row v-model="auditModel.State" class="ml-6 mr-6">
+                                <v-radio v-for="item in contentAuditStateList" :key="item.Id" :label="item.Name"
+                                    :value="item.Id" :color="item.Color"></v-radio>
+                            </v-radio-group>
+                            <v-textarea class="ml-6 mr-6" rows="4" label="审核原因（选填）" placeholder="请输入审核原因（选填）" outlined
+                                v-model="auditModel.Reason">
 
+                            </v-textarea>
 
+                            <!--已有的审核记录-->
+                            <p class="subtitle-1 font-weight-black mt-6 mb-1">审核记录</p>
+                            <v-divider></v-divider>
+                            <template v-if="updateItem.FlowList && updateItem.FlowList.length > 0">
+                                <v-expansion-panels class="mt-4">
+                                    <v-expansion-panel>
+                                        <v-expansion-panel-header>
+                                            <v-row>
+                                                <span
+                                                    class="font-weight-black mr-4">{{updateItem.FlowList[updateItem.FlowList.length - 1].Created }}</span>
+                                                <span
+                                                    class=" mr-4">{{'[' + updateItem.FlowList[updateItem.FlowList.length - 1].CreateByName + ']'}}</span>
+                                                <span>{{updateItem.FlowList[updateItem.FlowList.length - 1].Reason}}</span>
+                                            </v-row>
+                                        </v-expansion-panel-header>
+                                        <v-expansion-panel-content>
+                                            <v-timeline dense>
+                                                <v-timeline-item small v-for="item in updateItem.FlowList">
+                                                    <v-card class="elevation-2">
+                                                        <v-card-title class="headline subtitle-2">{{item.Created}}
+                                                        </v-card-title>
+                                                        <v-card-text>
+                                                            <span>
+                                                                <span
+                                                                    class=" mr-4">{{'[' + item.CreateByName + ']'}}</span>
+                                                                <span>{{item.Reason}}</span>
+                                                            </span>
+                                                        </v-card-text>
+                                                    </v-card>
+                                                </v-timeline-item>
+                                            </v-timeline>
+                                        </v-expansion-panel-content>
+                                    </v-expansion-panel>
+                                </v-expansion-panels>
+
+                            </template>
+                            <template v-else>
+                                <div>
+
+                                </div>
+                            </template>
                         </v-container>
                     </v-card-text>
-
                 </v-card>
 
             </v-dialog>
@@ -195,6 +264,10 @@
                     ContentUserName: '',
                     ContentHeadImgurl: '',
                     ContentCreated: '',
+
+                    Article: null,
+                    ArticleComment: null,
+                    FlowList: [],
                 },
 
                 updateDialog: {
@@ -215,11 +288,25 @@
                     { Id: 1, Name: '文章' },
                     { Id: 2, Name: '评论' },
                 ],
+
+                auditModel: {
+                    Id: 0,
+                    ContentId: 0,
+                    IsAudit: false,
+                    State: 0,
+                    Reason: '',
+                },
+
+                contentAuditStateList: [
+                    { Id: 1, Name: '通过', Color: 'green' },
+                    { Id: 3, Name: '驳回', Color: 'red' },
+                ],
+
             }
         },
 
         created() {
-
+            this.search(0);
         },
 
         methods: {
@@ -270,18 +357,88 @@
                 this.updateItem.ContentUserName = item.ContentUserName;
                 this.updateItem.ContentHeadImgurl = item.ContentHeadImgurl;
                 this.updateItem.ContentCreated = item.ContentCreated;
+
+                this.auditModel.Id = item.Id;
+                this.auditModel.ContentId = item.ContentId;
+                this.auditModel.IsAudit = item.IsAudit;
+                this.auditModel.State = item.IsAudit ? item.State : 1;
+                this.auditModel.Reason = '';
             },
 
             openAudit(item) {
+                this.updateItem.Article = null;
+                this.updateItem.ArticleComment = null;
+                this.updateItem.FlowList = [];
 
+                if (!item)
+                    return;
+
+                this.prepareUpdateItem(item);
+
+                if (item.ContentType === 1) {
+                    this.getAxios('/api/cms/backend/article/GetArticleById', {
+                        id: item.Id,
+                    }).then((data) => {
+                        if (data.errorcode === 0) {
+                            let article = data.result;
+                            this.updateItem.Article = article;
+                            this.loadAuditFlowList(item.Id);
+                        } else {
+                            this.$toast.error('获取文章数据失败,请重试.</br>' + data.errormsg, { x: 'center', y: 'top', timeout: 2000, showClose: true, });
+                        }
+                    }).catch((error) => {
+                        this.$toast.error('获取文章数据失败,请重试.</br>' + error.message, { x: 'center', y: 'top', timeout: 2000, showClose: true, });
+                    });
+                } else if (item.ContentType === 2) {
+
+                }
+
+
+            },
+
+            loadAuditFlowList(contentAuditId) {
+                this.getAxios('/api/cms/backend/audit/FlowList', {
+                    contentAuditId: contentAuditId,
+                    pageIndex: 0,
+                    pageSize: 100,
+                }).then((data) => {
+                    if (data.errorcode === 0) {
+                        if (data.result.Data && data.result.Data.length > 0) {
+                            this.updateItem.FlowList = data.result.Data;
+                        }
+                        console.log(data.result);
+                        this.updateDialog.isShow = true;
+                    } else {
+                        this.$toast.error('获取文章数据失败,请重试.</br>' + data.errormsg, { x: 'center', y: 'top', timeout: 2000, showClose: true, });
+                    }
+                }).catch(error => {
+                    this.$toast.error('获取文章数据失败,请重试.</br>' + error.message, { x: 'center', y: 'top', timeout: 2000, showClose: true, });
+                });
             },
 
             saveAudit() {
 
+                this.loadingDialog.message = '正在提交数据...';
+                this.loadingDialog.isShow = true;
+
+                this.postAxios('/api/cms/backend/audit/ContentAudit', JSON.stringify(this.auditModel)).then(data => {
+                    if (data.errorcode === 0) {
+                        this.loadingDialog.isShow = false;
+                        this.updateDialog.isShow = false;
+                        this.$toast.success('保存成功.', { x: 'center', y: 'top', timeout: 2000, showClose: true, });
+                        this.search(0);
+                    } else {
+                        this.loadingDialog.isShow = false;
+                        this.$toast.error('保存失败,请重新提交.</br>' + data.errormsg, { x: 'center', y: 'top', timeout: 2000, showClose: true, });
+                    }
+                }).catch(error => {
+                    this.loadingDialog.isShow = false;
+                    this.$toast.error('保存失败,请重新提交.', { x: 'center', y: 'top', timeout: 2000, showClose: true, });
+                });
             },
 
             closeAudit() {
-
+                this.updateDialog.isShow = false;
             },
 
             getContentTypeName(contentType) {
