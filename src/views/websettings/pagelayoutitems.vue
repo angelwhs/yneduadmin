@@ -516,6 +516,10 @@
                 this.updateItem.MoreButtonLinkUrl = item.MoreButtonLinkUrl;
                 this.updateItem.MoreButton_PictureId = item.MoreButton_PictureId;
                 this.updateItem.PageLayoutId = item.PageLayoutId;
+
+                if(this.updateItem.CMSContentSectionId && this.updateItem.CMSContentSectionId > 0) {
+                    this.selectedContentSections = this.updateItem.CMSContentSectionId;
+                }
             },
 
             openCreate: function (item) {
