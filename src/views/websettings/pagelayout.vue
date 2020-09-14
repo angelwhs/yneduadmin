@@ -36,6 +36,7 @@
                                     <th class="text-left">排序</th>
                                     <th class="text-left">标题</th>
                                     <th class="text-left">布局类型</th>
+                                    <th class="text-left">页面标识</th>
                                     <th class="text-left">状态</th>
                                     <th class="text-left">操作</th>
                                 </tr>
@@ -47,6 +48,7 @@
                                         <td>{{ item.DisplayOrder }}</td>
                                         <td>{{ item.Title }}</td>
                                         <td>{{ getLayoutTypeName(item.LayoutType) }}</td>
+                                        <td>{{ item.Name }}</td>
                                         <td>
                                             <v-icon size="20" v-if="!item.Enable" @click="confirmSetEnable(item)"
                                                 color="red lighten-2">
@@ -100,7 +102,7 @@
                                     <v-switch v-model="updateItem.IsShowTitle" label="是否显示标题" dense></v-switch>
                                 </v-col>
                                 <v-col cols="12" md="8">
-                                    <v-text-field v-model="updateItem.Title" label="标题"
+                                    <v-text-field v-model="updateItem.Title" dense label="标题"
                                         :rules="[() => !!updateItem.Title || '不能为空.']" :error-messages="errorMessages"
                                         ref="Entity_Title">
                                     </v-text-field>
@@ -111,7 +113,7 @@
                                     <v-switch v-model="updateItem.IsShowSubTitle" label="是否显示副标题" dense></v-switch>
                                 </v-col>
                                 <v-col cols="12" md="8">
-                                    <v-text-field v-model="updateItem.SubTitle" label="标题" :error-messages="errorMessages"
+                                    <v-text-field v-model="updateItem.SubTitle" dense label="副标题" :error-messages="errorMessages"
                                         ref="Entity_SubTitle">
                                     </v-text-field>
                                 </v-col>
@@ -128,9 +130,14 @@
                                 </v-col>
                             </v-row>
                             <v-row>
-                                <v-col>
+                                <v-col cols="12" md="6">
                                     <v-select :items="layoutTypeList" dense label="页面内容类型" item-text="Name" item-value="Id"
                                     v-model="updateItem.LayoutType"></v-select>
+                                </v-col>
+                                <v-col cols="12" md="6">
+                                    <v-text-field v-model="updateItem.Name" dense label="页面标识" :error-messages="errorMessages"
+                                        ref="EntityName">
+                                    </v-text-field>
                                 </v-col>
                             </v-row>
                             <v-row>
@@ -268,8 +275,9 @@
 
                 layoutTypeList: [
                     {Id: 1, Name: '页面'},
-                    {Id: 2, Name: '版块'},
-                    {Id: 3, Name: '控件'},
+                    {Id: 2, Name: '控件'},
+                    {Id: 11, Name: '全部CMS栏目'},
+                    {Id: 12, Name: '单个CMS栏目'},
                 ],
 
                 searchArticleContentSectionModel: {
@@ -488,10 +496,13 @@
                         name = '页面';
                         break;
                     case 2:
-                        name = '版块';
-                        break;
-                    case 3:
                         name = '控件';
+                        break;
+                    case 11:
+                        name = '全部CMS栏目';
+                        break;
+                    case 12:
+                        name = '单个CMS栏目';
                         break;
                     default:
                         break;

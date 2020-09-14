@@ -70,12 +70,15 @@
                                     </v-icon>
                                 </template>
 
-                                <!--发布/隐藏 插槽-->
+                                <!--文章审核 插槽-->
                                 <template v-slot:item.AuditStatus="{ item }">
                                     <!-- <span v-html="getAuditStatusName(item.AuditStatus)"></span> -->
                                     <span v-if="item.AuditStatus === 0">{{getAuditStatusName(item.AuditStatus)}}</span>
-                                    <span v-else-if="item.AuditStatus === 1">{{getAuditStatusName(item.AuditStatus)}}</span>
-                                    <v-btn v-else-if="item.AuditStatus === 4" >{{getAuditStatusName(item.AuditStatus)}}</v-btn>
+                                    <span
+                                        v-else-if="item.AuditStatus === 1" style="color: green;">{{getAuditStatusName(item.AuditStatus)}}</span>
+                                    <span v-else-if="item.AuditStatus === 3" style="color: red;">{{getAuditStatusName(item.AuditStatus)}}</span>
+                                    <v-btn small outlined text color="primary" v-else-if="item.AuditStatus === 4"
+                                        @click="openAudit(item)">{{getAuditStatusName(item.AuditStatus)}}</v-btn>
                                 </template>
 
                                 <!--操作插槽-->
@@ -269,6 +272,60 @@
                     </picture-selector>
                 </v-dialog>
 
+                <!--文章审核-->
+                <v-dialog v-model="contentauditDialog.show" persistent max-width="800" scrollable>
+                    <v-card>
+                        <v-card-title class="headline">文章审核</v-card-title>
+                        <v-card-text class="mb-0 pb-0">
+                            <v-container class="mb-0 pb-0">
+                                <p class="mb-1">标题：{{updateItem.Title}}</p>
+                                <p class="mb-1 mt-1">简介：{{updateItem.Summary}}</p>
+                                <p class="mb-1 mt-1">文章内容：</p>
+                            </v-container>
+                        </v-card-text>
+
+                        <v-card-text style="height: 200px;">
+                            <v-container>
+                                <p class="mb-1 mt-1" v-html="updateItem.ArticleContent">
+                                </p>
+                            </v-container>
+                        </v-card-text>
+
+                        <v-card-text>
+                            <v-container>
+                                <v-row>
+                                    <v-col>
+                                        <!--选择审核状态 通过/驳回-->
+                                        <v-radio-group v-model="contentauditDialog.auditItem.State" row hide-details
+                                            label="选择审核状态">
+                                            <v-radio v-for="item in contentauditDialog.contentAuditStatusList"
+                                                :color="item.Color" :key="item.Id" :label="item.Name" :value="item.Id">
+                                            </v-radio>
+                                        </v-radio-group>
+                                    </v-col>
+
+                                </v-row>
+                                <v-row class="mt-3">
+                                    <v-col>
+                                        <!--填写审核意见-->
+                                        <v-textarea no-resize outlined rows="3" label="审核意见（选填）"
+                                            placeholder="请输入审核意见（选填）" v-model="contentauditDialog.auditItem.Reason">
+
+                                        </v-textarea>
+                                    </v-col>
+
+                                </v-row>
+                            </v-container>
+                        </v-card-text>
+
+                        <v-card-actions>
+                            <v-spacer></v-spacer>
+                            <v-btn color="primary" text @click="contentauditDialog.show = false">取消</v-btn>
+                            <v-btn color="primary" @click="saveAudit()">确定</v-btn>
+                        </v-card-actions>
+                    </v-card>
+                </v-dialog>
+
                 <!--删除-->
                 <v-dialog v-model="deleteDialog" persistent max-width="640">
                     <v-card>
@@ -342,6 +399,7 @@
                     pageSize: 10,
                     list: [],
                     headers: [
+                        { text: 'Id', value: 'Id' },
                         { text: '排序', value: 'Sort' },
                         { text: '标题', value: 'Title' },
                         { text: '是否发布', value: 'IsPublish' },
@@ -449,6 +507,23 @@
                     pictureField: '',
                     pictureUrlField: '',
                 },
+
+                contentauditDialog: {
+                    show: false,
+                    contentAuditStatusList: [
+                        { Id: 1, Name: "通过", Color: "green" },
+                        { Id: 3, Name: "驳回", Color: "red" }
+                    ],
+                    auditItem: {
+                        ContentAuditId: 0,
+                        ContentId: 0,
+                        IsAudit: false,
+                        State: 1,
+                        ContentType: 1,
+                        ContentSummary: '',
+                        Reason: '',
+                    },
+                },
             }
         },
 
@@ -521,9 +596,9 @@
                 //console.log(item);
             },
 
-            getAuditStatusName: function(auditStatus) {
+            getAuditStatusName: function (auditStatus) {
                 let res = '未知';
-                if(auditStatus) {
+                if (auditStatus) {
                     switch (auditStatus) {
                         case 1:
                             res = '通过';
@@ -796,6 +871,33 @@
                 this.updateItem[pictureField] = selectItem.Id;
                 this.updateItem[pictureUrlField] = selectItem.ImageUrl;
             },
+
+
+            //内容审核  Begin
+            openAudit(item) {
+                this.getAxios('/api/cms/backend/article/GetArticleById', {
+                    id: item.Id,
+                }).then((data) => {
+                    if (data.errorcode === 0) {
+                        let article = data.result;
+                        this.prepareUpdateItem(article);
+                        this.contentauditDialog.show = true;
+                    } else {
+                        this.$toast.error('获取文章数据失败,请重试.</br>' + data.errormsg, { x: 'center', y: 'top', timeout: 2000, showClose: true, });
+                    }
+                }).catch((error) => {
+                    this.$toast.error('获取文章数据失败,请重试.</br>' + error.message, { x: 'center', y: 'top', timeout: 2000, showClose: true, });
+                });
+            },
+
+            saveAudit() {
+                this.loadingDialog.message = '正在提交数据...';
+                this.loadingDialog.isShow = true;
+
+
+            },
+
+            //内容审核 End
 
             onReady: function (editor) {
                 // Insert the toolbar before the editable area.

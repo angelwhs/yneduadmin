@@ -501,6 +501,13 @@
                     { Id: 32, Name: '音乐-1行3首' },
                     { Id: 33, Name: '音乐-1行1首(带介绍)' },
                     { Id: 34, Name: '音乐-1行1首(无介绍)' },
+                    { Id: 51, Name: '广告位-1行1个' },
+                    { Id: 61, Name: 'CMS-大幅封面图' },
+                    { Id: 62, Name: 'CMS-文章标题、作者、时间' },
+                    { Id: 63, Name: 'CMS-文章带详情' },
+                    { Id: 64, Name: 'CMS-多图片' },
+                    { Id: 71, Name: '校友会-班级列表' },
+                    { Id: 72, Name: '校友会-班级详细信息' },
                 ],
 
             }
@@ -771,10 +778,32 @@
                     case 23:
                         typeName = '带详情-1行2个';
                         break;
+                    case 51:
+                        typeName = '广告位-1行1个';
+                        break;
+                    case 61:
+                        typeName = 'CMS-大幅封面图';
+                        break;
+                    case 62:
+                        typeName = 'CMS-文章标题、作者、时间';
+                        break;
+                    case 63:
+                        typeName = 'CMS-文章带详情';
+                        break;
+                    case 64:
+                        typeName = 'CMS-多图片';
+                        break;
+                    case 71:
+                        typeName = '校友会-班级列表';
+                        break;
+                    case 72:
+                        typeName = '校友会-班级详细信息';
+                        break;
                     default:
                         break;
                 }
 
+                
                 return typeName;
             },
 
