@@ -16,19 +16,21 @@
 
             <!--课程信息-->
             <div class="pb-5">
-                <v-card class="mx-auto ">
-                    <v-card-title>
-                        课程信息
-                    </v-card-title>
-                    <v-card-text>
-                        <p class="ml-6 mt-2 mb-1 grey--text text--darken-1">
-                            Id：{{ lessonItem.Id }}
-                        </p>
-                        <p class="ml-6 mt-2 mb-1 grey--text text--darken-1">
-                            课程名称：{{ lessonItem.Title }}
-                        </p>
-                    </v-card-text>
-                </v-card>
+                
+                <v-expansion-panels>
+                    <v-expansion-panel>
+                        <v-expansion-panel-header ><span>课程：{{lessonItem.Title}}</span></v-expansion-panel-header>
+                        <v-expansion-panel-content>
+                            <p class="ml-6 mt-2 mb-1 grey--text text--darken-1">
+                                Id：{{ lessonItem.Id }}
+                            </p>
+                            <p class="ml-6 mt-2 mb-1 grey--text text--darken-1">
+                                课程名称：{{ lessonItem.Title }}
+                            </p>
+                        </v-expansion-panel-content>
+                    </v-expansion-panel>
+                </v-expansion-panels>
+                
             </div>
 
             <!--查询条件-->

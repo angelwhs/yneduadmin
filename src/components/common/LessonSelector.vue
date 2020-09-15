@@ -8,18 +8,14 @@
             <v-container>
                 <!--选择课程分类-->
                 <v-row>
-                    <v-col cols="12" md="12">
-                        <label class="v-label v-label--active theme--light" style="left: 0px; right: auto; font-size: 12px;">课程分类</label>
+                    <v-col cols="12" md="5">
+                        <!-- <label class="v-label v-label--active theme--light" style="left: 0px; right: auto; font-size: 12px;">课程分类</label> -->
                         <el-cascader :options="searchCategory.list" clearable v-model="searchCategory.selected"
                             :props="searchCategory.selectProps" style="width: 100%;" placeholder="请选择课程分类"
                             ref="categorySelector">
                         </el-cascader>
                     </v-col>
-                </v-row>
-
-                <!--搜索条件-->
-                <v-row>
-                    <v-col cols="12" md="10" class="">
+                    <v-col cols="12" md="5" class="">
                         <v-text-field label="搜索条件" dense v-model="searchModel.searchName" 
                             placeholder="请输入搜索条件" clearable hide-details>
                         </v-text-field>
@@ -118,8 +114,8 @@
                     searchName: '',
                 },
 
-                selectedItemskey: [],
-                //selectedItems: [],
+                //selectedItemskey: [],
+                selectedItems: [],
             }
         },
 
@@ -156,16 +152,18 @@
 
                         this.searchModel.list = data.result.Data;
 
-                        if(this.selected && this.selected.length > 0
-                            && this.searchModel.list && this.searchModel.list.length > 0) {
-                            this.selected.forEach((val, index) => {
-                                this.searchModel.list.forEach((val1, index1) => {
-                                    if(val.Id === val1.Id) {
-                                        this.selectedItems.push(val1);
-                                    }
-                                });
-                            });
-                        }
+                        //console.log(this.selected);
+
+                        // if(this.selected && this.selected.length > 0
+                        //     && this.searchModel.list && this.searchModel.list.length > 0) {
+                        //     this.selected.forEach((val, index) => {
+                        //         this.searchModel.list.forEach((val1, index1) => {
+                        //             if(val.Id === val1.Id) {
+                        //                 //this.selectedItems.push(val1);
+                        //             }
+                        //         });
+                        //     });
+                        // }
                     } else {
 
                     }

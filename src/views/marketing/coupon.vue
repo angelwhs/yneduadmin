@@ -801,6 +801,7 @@
                     pageIndex: pageIndex,
                     pageSize: this.searchResult.pageSize,
                 }).then((data) => {
+                    console.log(data);
                     if (data.errorcode === 0) {
                         this.pageSetting.page = data.result.PageIndex + 1;
                         this.pageSetting.length = data.result.TotalPages;
@@ -1076,16 +1077,21 @@
 
             // #region 课程选择器
             lessonSelectorShowChange: function (val) {
-                this.lessonSelectorSetting.show = val;
+                if(!val) {
+                    this.lessonSelectorSetting.show = val;
+                }
+                
             },
 
             lessonSelectorConfirm: function (selectedItems) {
+                //console.log(selectedItems);
                 if (selectedItems && selectedItems.length > 0) {
                     this.updateItem.AppliedToLessons = selectedItems;
                 }
             },
 
             lessonSelectorShow: function () {
+                //console.log(this.updateItem.AppliedToLessons);
                 this.lessonSelectorSetting.show = true;
             },
 

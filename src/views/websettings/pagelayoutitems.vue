@@ -101,7 +101,8 @@
             </div>
 
             <!--创建/更新-->
-            <v-dialog v-model="updateDialog.isShow" persistent fullscreen hide-overlay transition="dialog-bottom-transition">
+            <v-dialog v-model="updateDialog.isShow" persistent fullscreen hide-overlay
+                transition="dialog-bottom-transition">
                 <v-card ref="form">
                     <v-toolbar dark color="primary">
                         <v-btn icon dark @click="updateDialog.isShow = false">
@@ -118,144 +119,232 @@
                     </v-toolbar>
 
                     <v-card-text>
-                        <v-container>
-                            <v-row>
-                                <v-col v-if="updateItem.ParentId > 0 && updateItem.Parent" cols="12" md="12">
-                                    <v-expansion-panels>
-                                        <v-expansion-panel>
-                                            <v-expansion-panel-header>父节点：{{updateItem.Parent.Title}}
-                                            </v-expansion-panel-header>
-                                            <v-expansion-panel-content>
-                                                <p class="mb-1 grey--text text--darken-1">Id：{{updateItem.Parent.Id}}
-                                                </p>
-                                                <p class="mb-1 grey--text text--darken-1">控件类型：{{updateItem.Parent.ControlType}}
-                                                </p>
-                                            </v-expansion-panel-content>
-                                        </v-expansion-panel>
-                                    </v-expansion-panels>
-                                </v-col>
-                            </v-row>
-                            <v-row>
-                                <v-col cols="12" md="6">
-                                    <v-text-field v-model="updateItem.Title" label="标题"
-                                        :rules="[() => !!updateItem.Title || '不能为空.']" :error-messages="errorMessages"
-                                        ref="Entity_Title">
-                                    </v-text-field>
-                                </v-col>
-                                <v-col cols="12" md="6">
-                                    <v-text-field v-model="updateItem.SubTitle" label="副标题"
-                                        :error-messages="errorMessages" ref="Entity_SubTitle">
-                                    </v-text-field>
-                                </v-col>
-                            </v-row>
-                            <v-row>
-                                <v-col cols="12" md="6">
-                                    <v-select :items="layoutTypeList" dense label="页面内容类型" item-text="Name" item-value="Id"
-                                    v-model="updateItem.LayoutType"></v-select>
-                                </v-col>
-                                <v-col cols="12" md="6">
-                                    <v-select :items="controlTypeList" dense label="控件类型" item-text="Name" item-value="Id"
-                                    v-model="updateItem.ControlType"></v-select>
-                                </v-col>
-                            </v-row>
-                            <v-row>
-                                <v-col cols="12" md="4">
-                                    <v-switch v-model="updateItem.IsCMS" label="是否CMS栏目" dense></v-switch>
-                                </v-col>
-                                <v-col cols="12" md="8">
-                                    <el-cascader :options="searchArticleContentSectionResult.list" clearable :disabled="!updateItem.IsCMS"
-                                        v-model="selectedContentSections" :props="contentSectionSelectProps"
-                                        style="width: 100%;" placeholder="请选择栏目" ref="contentSectionSelector">
-                                    </el-cascader>
-                                </v-col>
-                            </v-row>
-                            <v-row>
-                                <v-col cols="12" md="12">
-                                    <v-card outlined class="pr-4 pl-4 pb-4">
-                                        <v-card-title>
-                                            封面
-                                        </v-card-title>
-                                        <template>
-                                            <template
-                                                v-if="updateItem.ImageThumb_PictureUrl && updateItem.ImageThumb_PictureUrl !== ''">
-                                                <v-img width="100%" height="200" contain
-                                                    :src="updateItem.ImageThumb_PictureUrl" aspect-ratio="1"
-                                                    ref="Entity_ImageThumb_PictureUrl">
-                                                </v-img>
-                                            </template>
-                                            <template v-else>
-                                                <div class="d-flex justify-center align-center"
-                                                    style="width: 100%; height: 200px;">
-                                                    <span class="subtitle-1">请选择图片</span>
+                        <v-tabs background-color="white" color="primary " v-model="tabsSetting.tab">
+                            <v-tabs-slider></v-tabs-slider>
+                            <v-tab :key="1">基本信息</v-tab>
+                            <v-tab :key="2">关联内容</v-tab>
+                        </v-tabs>
+
+                        <v-tabs-items v-model="tabsSetting.tab">
+                            <v-tab-item :key="1">
+                                <v-row>
+                                    <v-col v-if="updateItem.ParentId > 0 && updateItem.Parent" cols="12" md="12">
+                                        <v-expansion-panels>
+                                            <v-expansion-panel>
+                                                <v-expansion-panel-header>父节点：{{updateItem.Parent.Title}}
+                                                </v-expansion-panel-header>
+                                                <v-expansion-panel-content>
+                                                    <p class="mb-1 grey--text text--darken-1">
+                                                        Id：{{updateItem.Parent.Id}}
+                                                    </p>
+                                                    <p class="mb-1 grey--text text--darken-1">
+                                                        控件类型：{{updateItem.Parent.ControlType}}
+                                                    </p>
+                                                </v-expansion-panel-content>
+                                            </v-expansion-panel>
+                                        </v-expansion-panels>
+                                    </v-col>
+                                </v-row>
+                                <v-row>
+                                    <v-col cols="12" md="6">
+                                        <v-text-field v-model="updateItem.Title" label="标题"
+                                            :rules="[() => !!updateItem.Title || '不能为空.']"
+                                            :error-messages="errorMessages" ref="Entity_Title">
+                                        </v-text-field>
+                                    </v-col>
+                                    <v-col cols="12" md="6">
+                                        <v-text-field v-model="updateItem.SubTitle" label="副标题"
+                                            :error-messages="errorMessages" ref="Entity_SubTitle">
+                                        </v-text-field>
+                                    </v-col>
+                                </v-row>
+                                <v-row>
+                                    <v-col cols="12" md="6">
+                                        <v-select :items="layoutTypeList" dense label="页面内容类型" item-text="Name"
+                                            item-value="Id" v-model="updateItem.LayoutType"></v-select>
+                                    </v-col>
+                                    <v-col cols="12" md="6">
+                                        <v-select :items="controlTypeList" dense label="控件类型" item-text="Name"
+                                            item-value="Id" v-model="updateItem.ControlType"></v-select>
+                                    </v-col>
+                                </v-row>
+                                <v-row>
+                                    <v-col cols="12" md="4">
+                                        <v-switch v-model="updateItem.IsCMS" label="是否CMS栏目" dense></v-switch>
+                                    </v-col>
+                                    <v-col cols="12" md="8">
+                                        <el-cascader :options="searchArticleContentSectionResult.list" clearable
+                                            :disabled="!updateItem.IsCMS" v-model="selectedContentSections"
+                                            :props="contentSectionSelectProps" style="width: 100%;" placeholder="请选择栏目"
+                                            ref="contentSectionSelector">
+                                        </el-cascader>
+                                    </v-col>
+                                </v-row>
+                                <v-row>
+                                    <v-col cols="12" md="12">
+                                        <v-card outlined class="pr-4 pl-4 pb-4">
+                                            <v-card-title>
+                                                封面
+                                            </v-card-title>
+                                            <template>
+                                                <template
+                                                    v-if="updateItem.ImageThumb_PictureUrl && updateItem.ImageThumb_PictureUrl !== ''">
+                                                    <v-img width="100%" height="200" contain
+                                                        :src="updateItem.ImageThumb_PictureUrl" aspect-ratio="1"
+                                                        ref="Entity_ImageThumb_PictureUrl">
+                                                    </v-img>
+                                                </template>
+                                                <template v-else>
+                                                    <div class="d-flex justify-center align-center"
+                                                        style="width: 100%; height: 200px;">
+                                                        <span class="subtitle-1">请选择图片</span>
+                                                    </div>
+                                                </template>
+                                                <input type="hidden" v-model="updateItem.ImageThumb_PictureId"
+                                                    ref="Entity_ImageThumb_PictureId" />
+                                                <div class="d-flex justify-center mt-2">
+                                                    <v-btn
+                                                        @click="pictureSelectorShow('ImageThumb_PictureId', 'ImageThumb_PictureUrl')"
+                                                        class="mr-12" small color="light-blue darken-1" dark>
+                                                        选择图片
+                                                    </v-btn>
+                                                    <v-btn
+                                                        @click="updateItem.ImageThumb_PictureId=0;updateItem.ImageThumb_PictureUrl=''"
+                                                        small color="light-blue darken-1" dark>
+                                                        删除图片
+                                                    </v-btn>
                                                 </div>
                                             </template>
-                                            <input type="hidden" v-model="updateItem.ImageThumb_PictureId"
-                                                ref="Entity_ImageThumb_PictureId" />
-                                            <div class="d-flex justify-center mt-2">
-                                                <v-btn
-                                                    @click="pictureSelectorShow('ImageThumb_PictureId', 'ImageThumb_PictureUrl')"
-                                                    class="mr-12" small color="light-blue darken-1" dark>
-                                                    选择图片
-                                                </v-btn>
-                                                <v-btn
-                                                    @click="updateItem.ImageThumb_PictureId=0;updateItem.ImageThumb_PictureUrl=''"
-                                                    small color="light-blue darken-1" dark>
-                                                    删除图片
-                                                </v-btn>
-                                            </div>
-                                        </template>
 
+                                        </v-card>
+                                    </v-col>
+
+                                </v-row>
+                                <v-row>
+                                    <v-col cols="12" md="4">
+                                        <v-switch v-model="updateItem.IsLink" label="是否转向链接" dense></v-switch>
+                                    </v-col>
+                                    <v-col cols="12" md="8">
+                                        <v-text-field v-model="updateItem.LinkUrl" label="链接地址" dense
+                                            :error-messages="errorMessages" ref="Entity_LinkUrl"
+                                            :disabled="!updateItem.IsLink">
+                                        </v-text-field>
+                                    </v-col>
+                                </v-row>
+                                <v-row>
+                                    <v-col cols="12" md="4">
+                                        <v-switch v-model="updateItem.IsShowMoreButton" label="是否显示更多按钮" dense>
+                                        </v-switch>
+                                    </v-col>
+                                    <v-col cols="12" md="8">
+                                        <v-text-field v-model="updateItem.MoreButtonTitle" label="更多按钮文字" dense
+                                            :error-messages="errorMessages" ref="Entity_MoreButtonTitle"
+                                            :disabled="!updateItem.IsShowMoreButton">
+                                        </v-text-field>
+                                    </v-col>
+                                </v-row>
+                                <v-row>
+                                    <v-col>
+                                        <v-text-field v-model="updateItem.MoreButtonLinkUrl" label="更多按钮链接" dense
+                                            :error-messages="errorMessages" ref="Entity_MoreButtonLinkUrl">
+                                        </v-text-field>
+                                    </v-col>
+                                </v-row>
+                                <v-row>
+                                    <v-col cols="12" md="4">
+                                        <v-text-field v-model="updateItem.ShowCount" label="显示个数" ref="ShowCount"
+                                            :error-messages="errorMessages"
+                                            :rules="[() => !!updateItem.ShowCount || '不能为空.']">
+                                        </v-text-field>
+                                    </v-col>
+                                    <v-col cols="12" md="4">
+                                        <v-text-field v-model="updateItem.DisplayOrder" label="序号" ref="DisplayOrder"
+                                            :error-messages="errorMessages"
+                                            :rules="[() => !!updateItem.DisplayOrder || '不能为空.']">
+                                        </v-text-field>
+                                    </v-col>
+                                    <v-col cols="12" md="4">
+                                        <v-switch v-model="updateItem.Enable" label="是否启用"></v-switch>
+                                    </v-col>
+                                </v-row>
+                            </v-tab-item>
+                            <v-tab-item :key="2">
+                                <!--关联内容选择-->
+                                <v-row>
+                                    <v-col>
+                                        <v-radio-group v-model="contentType.selected" row>
+                                            <v-radio label="课程" value="1"></v-radio>
+                                            <v-radio label="章节" value="2"></v-radio>
+                                          </v-radio-group>
+                                    </v-col>
+                                </v-row>
+
+                                <template v-if="contentType.selected === '1'">
+                                    <v-card>
+                                        <!--关联课程-->
+                                        <v-row>
+                                            <v-col>
+                                                <template
+                                                    v-if="updateItem.BindingDataList && updateItem.BindingDataList.length > 0">
+                                                    <v-card class="mt-0 mb-0 ml-12 mr-12" outlined>
+                                                        <v-row>
+                                                            <v-col>
+                                                                <v-simple-table fixed-header class="pl-4 pr-4">
+                                                                    <thead>
+                                                                        <tr>
+                                                                            <th class="text-left">Id</th>
+                                                                            <th class="text-left">课程名称</th>
+                                                                            <th class="text-left">创建时间</th>
+                                                                            <th class="text-left">操作</th>
+                                                                        </tr>
+                                                                    </thead>
+                                                                    <tbody>
+                                                                        <template
+                                                                            v-if="updateItem.BindingDataList && updateItem.BindingDataList.length > 0">
+                                                                            <tr v-for="item in updateItem.BindingDataList"
+                                                                                :key="item.Id">
+                                                                                <td>{{ item.Id }}</td>
+                                                                                <td>{{ item.Title }}</td>
+                                                                                <td>{{ item.Created }}</td>
+                                                                                <td>
+                                                                                    <v-icon size="20" color="deep-orange"
+                                                                                        @click="lessonDelete(item)">
+                                                                                        mdi-delete-forever</v-icon>
+                                                                                </td>
+                                                                            </tr>
+                                                                        </template>
+                                                                    </tbody>
+                                                                </v-simple-table>
+                                                            </v-col>
+                                                        </v-row>
+                                                    </v-card>
+                                                </template>
+                                                <template v-else>
+                                                    <v-row>
+                                                        <v-col class="d-flex justify-center align-center">
+                                                            <span class="ma-4">请添加适用课程</span>
+                                                        </v-col>
+                                                    </v-row>
+                                                </template>
+                                                <v-row>
+                                                    <v-col class="d-flex justify-center align-center">
+                                                        <v-btn @click="lessonSelectorShow" small color="light-blue darken-1">
+                                                            <span style="color: white;">添加课程</span>
+                                                        </v-btn>
+                                                    </v-col>
+                                                </v-row>
+                                            </v-col>
+                                        </v-row>
                                     </v-card>
-                                </v-col>
+                                </template>
+                                <template v-else-if="contentType.selected === '2'">
+
+                                </template>
                                 
-                            </v-row>
-                            <v-row>
-                                <v-col cols="12" md="4">
-                                    <v-switch v-model="updateItem.IsLink" label="是否转向链接" dense></v-switch>
-                                </v-col>
-                                <v-col cols="12" md="8">
-                                    <v-text-field v-model="updateItem.LinkUrl" label="链接地址" dense
-                                        :error-messages="errorMessages" ref="Entity_LinkUrl"
-                                        :disabled="!updateItem.IsLink">
-                                    </v-text-field>
-                                </v-col>
-                            </v-row>
-                            <v-row>
-                                <v-col cols="12" md="4">
-                                    <v-switch v-model="updateItem.IsShowMoreButton" label="是否显示更多按钮" dense></v-switch>
-                                </v-col>
-                                <v-col cols="12" md="8">
-                                    <v-text-field v-model="updateItem.MoreButtonTitle" label="更多按钮文字" dense
-                                        :error-messages="errorMessages" ref="Entity_MoreButtonTitle"
-                                        :disabled="!updateItem.IsShowMoreButton">
-                                    </v-text-field>
-                                </v-col>
-                            </v-row>
-                            <v-row>
-                                <v-col>
-                                    <v-text-field v-model="updateItem.MoreButtonLinkUrl" label="更多按钮链接" dense
-                                        :error-messages="errorMessages" ref="Entity_MoreButtonLinkUrl">
-                                    </v-text-field>
-                                </v-col>
-                            </v-row>
-                            <v-row>
-                                <v-col cols="12" md="4">
-                                    <v-text-field v-model="updateItem.ShowCount" label="显示个数" ref="ShowCount"
-                                        :error-messages="errorMessages"
-                                        :rules="[() => !!updateItem.ShowCount || '不能为空.']">
-                                    </v-text-field>
-                                </v-col>
-                                <v-col cols="12" md="4">
-                                    <v-text-field v-model="updateItem.DisplayOrder" label="序号" ref="DisplayOrder"
-                                        :error-messages="errorMessages"
-                                        :rules="[() => !!updateItem.DisplayOrder || '不能为空.']">
-                                    </v-text-field>
-                                </v-col>
-                                <v-col cols="12" md="4">
-                                    <v-switch v-model="updateItem.Enable" label="是否启用"></v-switch>
-                                </v-col>
-                            </v-row>
-                        </v-container>
+                            </v-tab-item>
+                        </v-tabs-items>
+
+
                     </v-card-text>
                 </v-card>
 
@@ -264,6 +353,13 @@
                     :multiple="false" :pictureField="imgSelectorSetting.pictureField" platformName="cms"
                     :pictureUrlField="imgSelectorSetting.pictureUrlField" v-on:on-confirm="pictureSelectorConfirm">
                 </picture-selector>
+
+                <!--课程选择器-->
+                <lesson-selector :isShow="lessonSelectorSetting.show" :selected="updateItem.AppliedToLessons"
+                    v-on:on-show-change="lessonSelectorShowChange" v-on:on-confirm="lessonSelectorConfirm">
+                </lesson-selector>
+
+                <!--章节选择器-->
             </v-dialog>
 
 
@@ -320,10 +416,12 @@
 
 <script>
     import PictureSelector from '../../components/common/PictureSelector.vue';
+    import LessonSelector from '../../components/common/LessonSelector.vue';
 
     export default {
         components: {
             PictureSelector,
+            LessonSelector,
         },
 
         data() {
@@ -374,6 +472,8 @@
                     MoreButtonLinkUrl: '',
                     MoreButton_PictureId: 0,
                     PageLayoutId: 0,
+
+                    BindingDataList: [],
                 },
 
                 updateDialog: {
@@ -413,18 +513,18 @@
                 },
 
                 layoutTypeList: [
-                    {Id: 1, Name: '页面'},
-                    {Id: 2, Name: '版块'},
-                    {Id: 3, Name: '控件'},
+                    { Id: 1, Name: '页面' },
+                    { Id: 2, Name: '版块' },
+                    { Id: 3, Name: '控件' },
                 ],
 
                 controlTypeList: [
-                    {Id: 1, Name: '滚动控件'},
-                    {Id: 2, Name: '图片菜单'},
-                    {Id: 3, Name: '详情卡片'},
-                    {Id: 4, Name: '带标题图片卡片'},
-                    {Id: 5, Name: '音乐卡片'},
-                    {Id: 6, Name: '视频卡片'},
+                    { Id: 1, Name: '滚动控件' },
+                    { Id: 2, Name: '图片菜单' },
+                    { Id: 3, Name: '详情卡片' },
+                    { Id: 4, Name: '带标题图片卡片' },
+                    { Id: 5, Name: '音乐卡片' },
+                    { Id: 6, Name: '视频卡片' },
                 ],
 
                 searchArticleContentSectionModel: {
@@ -447,11 +547,28 @@
                 },
 
                 selectedContentSections: 0,
+
+                //tab 设置
+                tabsSetting: {
+                    tab: null,
+                },
+
+                //内容选择
+                contentType: {
+                    selected: '1',
+                },
+
+                //课程选择器参数
+                lessonSelectorSetting: {
+                    show: false,
+                    selectedItems: [],
+                },
+
             }
         },
 
         created() {
-            
+
         },
 
         mounted() {
@@ -517,7 +634,7 @@
                 this.updateItem.MoreButton_PictureId = item.MoreButton_PictureId;
                 this.updateItem.PageLayoutId = item.PageLayoutId;
 
-                if(this.updateItem.CMSContentSectionId && this.updateItem.CMSContentSectionId > 0) {
+                if (this.updateItem.CMSContentSectionId && this.updateItem.CMSContentSectionId > 0) {
                     this.selectedContentSections = this.updateItem.CMSContentSectionId;
                 }
             },
@@ -609,11 +726,11 @@
                     this.updateItem.Parent = null;
                 }
 
-                if(this.selectedContentSections && this.selectedContentSections > 0 && this.updateItem.IsCMS) {
+                if (this.selectedContentSections && this.selectedContentSections > 0 && this.updateItem.IsCMS) {
                     this.updateItem.CMSContentSectionId = this.selectedContentSections;
                 }
 
-                if(this.pageLayout) {
+                if (this.pageLayout) {
                     this.updateItem.PageLayoutId = this.pageLayout.Id;
                 }
 
@@ -708,8 +825,8 @@
             },
 
             getPageLayout(id) {
-                this.getAxios('/api/cms/backend/pagelayout/GetPageLayout', {id:id}).then((data) => {
-                    if(data.errorcode === 0) {
+                this.getAxios('/api/cms/backend/pagelayout/GetPageLayout', { id: id }).then((data) => {
+                    if (data.errorcode === 0) {
                         this.pageLayout = data.result;
                     } else {
 
@@ -740,7 +857,7 @@
                 this.updateItem[pictureUrlField] = selectItem.ImageUrl;
             },
 
-            getLayoutTypeName: function(layoutType) {
+            getLayoutTypeName: function (layoutType) {
                 let name = '未知';
 
                 switch (layoutType) {
@@ -763,7 +880,7 @@
             getControlTypeName(controlType) {
                 let name = '未知';
 
-                switch(controlType) {
+                switch (controlType) {
                     case 1:
                         name = '滚动控件';
                         break;
@@ -807,6 +924,33 @@
 
                 });
             },
+
+
+            // #region 课程选择器
+            lessonSelectorShowChange: function (val) {
+                this.lessonSelectorSetting.show = val;
+            },
+
+            lessonSelectorConfirm: function (selectedItems) {
+                if (selectedItems && selectedItems.length > 0) {
+                    this.updateItem.AppliedToLessons = selectedItems;
+                }
+            },
+
+            lessonSelectorShow: function () {
+                this.lessonSelectorSetting.show = true;
+            },
+
+            lessonDelete: function (item) {
+                if (this.updateItem.AppliedToLessons && this.updateItem.AppliedToLessons.length > 0) {
+                    this.updateItem.AppliedToLessons.forEach((val, index) => {
+                        if (val && val.Id === item.Id) {
+                            this.updateItem.AppliedToLessons.splice(index, 1);
+                        }
+                    })
+                }
+            },
+            // #endregion
 
         },
     }
