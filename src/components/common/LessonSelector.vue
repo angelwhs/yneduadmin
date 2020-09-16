@@ -15,12 +15,12 @@
                             ref="categorySelector">
                         </el-cascader>
                     </v-col>
-                    <v-col cols="12" md="5" class="">
+                    <v-col cols="12" md="6" class="">
                         <v-text-field label="搜索条件" dense v-model="searchModel.searchName" 
                             placeholder="请输入搜索条件" clearable hide-details>
                         </v-text-field>
                     </v-col>
-                    <v-col cols="12" md="2" class="">
+                    <v-col cols="12" md="1" class="">
                         <v-btn color="primary" block class="align-center" @click="search(0)">搜索</v-btn>
                     </v-col>
                 </v-row>
@@ -30,7 +30,7 @@
                     <v-col>
                         <label class="v-label v-label--active theme--light" style="left: 0px; right: auto; font-size: 12px;">搜索结果</label>
                         <v-data-table class="elevation-1" show-select hide-default-footer :headers="searchModel.headers"
-                        item-key="Id" :items="searchModel.list" :loading="searchModel.loading"
+                        item-key="Id" :items="searchModel.list" :loading="searchModel.loading" :single-select="singleSelect"
                         no-data-text="未查询到数据" loading-text="数据加载中..." v-model="selectedItems">
 
                         </v-data-table>
@@ -71,6 +71,10 @@
         props: {
             isShow: Boolean,
             selected: Array,
+            singleSelect: {
+                type: Boolean,
+                default: false,
+            },
         },
 
         data() {
@@ -114,7 +118,6 @@
                     searchName: '',
                 },
 
-                //selectedItemskey: [],
                 selectedItems: [],
             }
         },
@@ -130,7 +133,7 @@
         methods: {
             search: function(pageIndex) {
                 //console.log(this.searchCategory.selected);
-                //this.selectedItems = [];
+                this.selectedItems = [];
 
                 let categoryId = 0;
                 if(this.searchCategory.selected && this.searchCategory.selected > 0) {
@@ -152,18 +155,16 @@
 
                         this.searchModel.list = data.result.Data;
 
-                        //console.log(this.selected);
-
-                        // if(this.selected && this.selected.length > 0
-                        //     && this.searchModel.list && this.searchModel.list.length > 0) {
-                        //     this.selected.forEach((val, index) => {
-                        //         this.searchModel.list.forEach((val1, index1) => {
-                        //             if(val.Id === val1.Id) {
-                        //                 //this.selectedItems.push(val1);
-                        //             }
-                        //         });
-                        //     });
-                        // }
+                        if(this.selected && this.selected.length > 0
+                            && this.searchModel.list && this.searchModel.list.length > 0) {
+                            this.selected.forEach((val, index) => {
+                                this.searchModel.list.forEach((val1, index1) => {
+                                    if(val.Id === val1.Id) {
+                                        this.selectedItems.push(val1);
+                                    }
+                                });
+                            });
+                        }
                     } else {
 
                     }
@@ -206,6 +207,7 @@
             isShow(val) {
                 this.show = val;
                 if(this.show) {
+                    //console.log('show');
                     this.loadLessonCategory();
                     this.search(0);
                 }

@@ -276,6 +276,7 @@
                 layoutTypeList: [
                     {Id: 1, Name: '页面'},
                     {Id: 2, Name: '控件'},
+                    {Id: 3, Name: 'Tab页面'},
                     {Id: 11, Name: '全部CMS栏目'},
                     {Id: 12, Name: '单个CMS栏目'},
                 ],
@@ -337,6 +338,7 @@
 
             prepareUpdateItem: function (item) {
                 this.updateItem.Id = item.Id;
+                this.updateItem.Name = item.Name;
                 this.updateItem.DisplayOrder = item.DisplayOrder;
                 this.updateItem.Title = item.Title;
                 this.updateItem.SubTitle = item.SubTitle;
@@ -355,6 +357,7 @@
 
             openCreate: function (item) {
                 this.updateItem.Id = 0;
+                this.updateItem.Name = '';
                 this.updateItem.DisplayOrder = 0;
                 this.updateItem.SubTitle = '';
                 this.updateItem.Title = '';
@@ -497,6 +500,9 @@
                         break;
                     case 2:
                         name = '控件';
+                        break;
+                    case 3:
+                        name = 'Tab页面';
                         break;
                     case 11:
                         name = '全部CMS栏目';

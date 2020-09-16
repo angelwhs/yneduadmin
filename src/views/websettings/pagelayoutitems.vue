@@ -285,7 +285,7 @@
                                         <v-row>
                                             <v-col>
                                                 <template
-                                                    v-if="updateItem.BindingDataList && updateItem.BindingDataList.length > 0">
+                                                    v-if="lessonSelectorSetting.selectedItems && lessonSelectorSetting.selectedItems.length > 0">
                                                     <v-card class="mt-0 mb-0 ml-12 mr-12" outlined>
                                                         <v-row>
                                                             <v-col>
@@ -300,8 +300,8 @@
                                                                     </thead>
                                                                     <tbody>
                                                                         <template
-                                                                            v-if="updateItem.BindingDataList && updateItem.BindingDataList.length > 0">
-                                                                            <tr v-for="item in updateItem.BindingDataList"
+                                                                            v-if="lessonSelectorSetting.selectedItems && lessonSelectorSetting.selectedItems.length > 0">
+                                                                            <tr v-for="item in lessonSelectorSetting.selectedItems"
                                                                                 :key="item.Id">
                                                                                 <td>{{ item.Id }}</td>
                                                                                 <td>{{ item.Title }}</td>
@@ -322,7 +322,7 @@
                                                 <template v-else>
                                                     <v-row>
                                                         <v-col class="d-flex justify-center align-center">
-                                                            <span class="ma-4">请添加适用课程</span>
+                                                            <span class="ma-4">请添加关联课程</span>
                                                         </v-col>
                                                     </v-row>
                                                 </template>
@@ -338,7 +338,62 @@
                                     </v-card>
                                 </template>
                                 <template v-else-if="contentType.selected === '2'">
-
+                                    <v-card>
+                                        <!--关联章节-->
+                                        <v-row>
+                                            <v-col>
+                                                <template
+                                                    v-if="chapterSelectorSetting.selectedItems && chapterSelectorSetting.selectedItems.length > 0">
+                                                    <v-card class="mt-0 mb-0 ml-12 mr-12" outlined>
+                                                        <v-row>
+                                                            <v-col>
+                                                                <v-simple-table fixed-header class="pl-4 pr-4">
+                                                                    <thead>
+                                                                        <tr>
+                                                                            <th class="text-left">Id</th>
+                                                                            <th class="text-left">课程名称</th>
+                                                                            <th class="text-left">章节名称</th>
+                                                                            <th class="text-left">操作</th>
+                                                                        </tr>
+                                                                    </thead>
+                                                                    <tbody>
+                                                                        <template
+                                                                            v-if="chapterSelectorSetting.selectedItems && chapterSelectorSetting.selectedItems.length > 0">
+                                                                            <tr v-for="item in chapterSelectorSetting.selectedItems"
+                                                                                :key="item.Id">
+                                                                                <td>{{ item.Id }}</td>
+                                                                                <td>{{ item.Title }}</td>
+                                                                                <td>{{ item.Title }}</td>
+                                                                                <td>
+                                                                                    <v-icon size="20" color="deep-orange"
+                                                                                        @click="chapterDelete(item)">
+                                                                                        mdi-delete-forever</v-icon>
+                                                                                </td>
+                                                                            </tr>
+                                                                        </template>
+                                                                    </tbody>
+                                                                </v-simple-table>
+                                                            </v-col>
+                                                        </v-row>
+                                                    </v-card>
+                                                </template>
+                                                <template v-else>
+                                                    <v-row>
+                                                        <v-col class="d-flex justify-center align-center">
+                                                            <span class="ma-4">请添加关联章节</span>
+                                                        </v-col>
+                                                    </v-row>
+                                                </template>
+                                                <v-row>
+                                                    <v-col class="d-flex justify-center align-center">
+                                                        <v-btn @click="chapterSelectorShow" small color="light-blue darken-1">
+                                                            <span style="color: white;">添加章节</span>
+                                                        </v-btn>
+                                                    </v-col>
+                                                </v-row>
+                                            </v-col>
+                                        </v-row>
+                                    </v-card>
                                 </template>
                                 
                             </v-tab-item>
@@ -355,11 +410,13 @@
                 </picture-selector>
 
                 <!--课程选择器-->
-                <lesson-selector :isShow="lessonSelectorSetting.show" :selected="updateItem.AppliedToLessons"
+                <lesson-selector :isShow="lessonSelectorSetting.show" :selected="lessonSelectorSetting.selectedItems"
                     v-on:on-show-change="lessonSelectorShowChange" v-on:on-confirm="lessonSelectorConfirm">
                 </lesson-selector>
 
                 <!--章节选择器-->
+                <chapter-selector :isShow="chapterSelectorSetting.show" :selected="chapterSelectorSetting.selectedItems"
+                v-on:on-show-change="chapterSelectorShowChange" v-on:on-confirm="chapterSelectorConfirm"></chapter-selector>
             </v-dialog>
 
 
@@ -417,11 +474,13 @@
 <script>
     import PictureSelector from '../../components/common/PictureSelector.vue';
     import LessonSelector from '../../components/common/LessonSelector.vue';
+    import ChapterSelector from '../../components/common/ChapterSelector.vue';
 
     export default {
         components: {
             PictureSelector,
             LessonSelector,
+            ChapterSelector,
         },
 
         data() {
@@ -472,8 +531,6 @@
                     MoreButtonLinkUrl: '',
                     MoreButton_PictureId: 0,
                     PageLayoutId: 0,
-
-                    BindingDataList: [],
                 },
 
                 updateDialog: {
@@ -560,6 +617,12 @@
 
                 //课程选择器参数
                 lessonSelectorSetting: {
+                    show: false,
+                    selectedItems: [],
+                },
+
+                //章节选择器
+                chapterSelectorSetting: {
                     show: false,
                     selectedItems: [],
                 },
@@ -933,7 +996,7 @@
 
             lessonSelectorConfirm: function (selectedItems) {
                 if (selectedItems && selectedItems.length > 0) {
-                    this.updateItem.AppliedToLessons = selectedItems;
+                    this.lessonSelectorSetting.selectedItems = selectedItems;
                 }
             },
 
@@ -942,14 +1005,43 @@
             },
 
             lessonDelete: function (item) {
-                if (this.updateItem.AppliedToLessons && this.updateItem.AppliedToLessons.length > 0) {
-                    this.updateItem.AppliedToLessons.forEach((val, index) => {
+                if (this.lessonSelectorSetting.selectedItems && this.lessonSelectorSetting.selectedItems.length > 0) {
+                    this.lessonSelectorSetting.selectedItems.forEach((val, index) => {
                         if (val && val.Id === item.Id) {
-                            this.updateItem.AppliedToLessons.splice(index, 1);
+                            this.lessonSelectorSetting.selectedItems.splice(index, 1);
                         }
                     })
                 }
             },
+            // #endregion
+
+
+            // #region 章节选择器
+
+            chapterSelectorShowChange: function (val) {
+                this.chapterSelectorSetting.show = val;
+            },
+
+            chapterSelectorConfirm: function (selectedItems) {
+                if (selectedItems && selectedItems.length > 0) {
+                    this.chapterSelectorSetting.selectedItems = selectedItems;
+                }
+            },
+
+            chapterSelectorShow: function () {
+                this.chapterSelectorSetting.show = true;
+            },
+
+            chapterDelete: function (item) {
+                if (this.chapterSelectorSetting.selectedItems && this.chapterSelectorSetting.selectedItems.length > 0) {
+                    this.chapterSelectorSetting.selectedItems.forEach((val, index) => {
+                        if (val && val.Id === item.Id) {
+                            this.chapterSelectorSetting.selectedItems.splice(index, 1);
+                        }
+                    })
+                }
+            },
+
             // #endregion
 
         },
