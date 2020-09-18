@@ -145,7 +145,7 @@
                     headers: [
                         { text: 'Id', value: 'Id' },
                         { text: '序号', value: 'DisplayOrder' },
-                        { text: '名称', value: 'Title' },
+                        { text: '章节名称', value: 'Title' },
                         { text: '关联知识点', value: 'KnowledgePoints' },
                     ],
                     pageSetting: {
@@ -190,7 +190,7 @@
                     pageIndex: pageIndex,
                     pageSize: this.searchModel.pageSize,
                 }).then((data) => {
-                    //console.log(data);
+                    console.log(data);
                     if (data.errorcode === 0) {
                         this.searchModel.pageSetting.page = data.result.PageIndex + 1;
                         this.searchModel.pageSetting.length = data.result.TotalPages;
@@ -224,7 +224,7 @@
             },
 
             lessonSelectorConfirm: function (selectedItems) {
-                console.log(selectedItems);
+                //console.log(selectedItems);
                 if (selectedItems && selectedItems.length > 0) {
                     this.lessonSelectorSetting.selectedItems = selectedItems;
 

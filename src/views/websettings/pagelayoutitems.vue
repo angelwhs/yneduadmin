@@ -275,7 +275,7 @@
                                         <v-radio-group v-model="contentType.selected" row>
                                             <v-radio label="课程" value="1"></v-radio>
                                             <v-radio label="章节" value="2"></v-radio>
-                                          </v-radio-group>
+                                        </v-radio-group>
                                     </v-col>
                                 </v-row>
 
@@ -307,7 +307,8 @@
                                                                                 <td>{{ item.Title }}</td>
                                                                                 <td>{{ item.Created }}</td>
                                                                                 <td>
-                                                                                    <v-icon size="20" color="deep-orange"
+                                                                                    <v-icon size="20"
+                                                                                        color="deep-orange"
                                                                                         @click="lessonDelete(item)">
                                                                                         mdi-delete-forever</v-icon>
                                                                                 </td>
@@ -328,7 +329,8 @@
                                                 </template>
                                                 <v-row>
                                                     <v-col class="d-flex justify-center align-center">
-                                                        <v-btn @click="lessonSelectorShow" small color="light-blue darken-1">
+                                                        <v-btn @click="lessonSelectorShow" small
+                                                            color="light-blue darken-1">
                                                             <span style="color: white;">添加课程</span>
                                                         </v-btn>
                                                     </v-col>
@@ -362,10 +364,11 @@
                                                                             <tr v-for="item in chapterSelectorSetting.selectedItems"
                                                                                 :key="item.Id">
                                                                                 <td>{{ item.Id }}</td>
-                                                                                <td>{{ item.Title }}</td>
+                                                                                <td>{{ item.LessonTitle }}</td>
                                                                                 <td>{{ item.Title }}</td>
                                                                                 <td>
-                                                                                    <v-icon size="20" color="deep-orange"
+                                                                                    <v-icon size="20"
+                                                                                        color="deep-orange"
                                                                                         @click="chapterDelete(item)">
                                                                                         mdi-delete-forever</v-icon>
                                                                                 </td>
@@ -386,7 +389,8 @@
                                                 </template>
                                                 <v-row>
                                                     <v-col class="d-flex justify-center align-center">
-                                                        <v-btn @click="chapterSelectorShow" small color="light-blue darken-1">
+                                                        <v-btn @click="chapterSelectorShow" small
+                                                            color="light-blue darken-1">
                                                             <span style="color: white;">添加章节</span>
                                                         </v-btn>
                                                     </v-col>
@@ -395,7 +399,7 @@
                                         </v-row>
                                     </v-card>
                                 </template>
-                                
+
                             </v-tab-item>
                         </v-tabs-items>
 
@@ -416,7 +420,8 @@
 
                 <!--章节选择器-->
                 <chapter-selector :isShow="chapterSelectorSetting.show" :selected="chapterSelectorSetting.selectedItems"
-                v-on:on-show-change="chapterSelectorShowChange" v-on:on-confirm="chapterSelectorConfirm"></chapter-selector>
+                    v-on:on-show-change="chapterSelectorShowChange" v-on:on-confirm="chapterSelectorConfirm">
+                </chapter-selector>
             </v-dialog>
 
 
@@ -531,6 +536,8 @@
                     MoreButtonLinkUrl: '',
                     MoreButton_PictureId: 0,
                     PageLayoutId: 0,
+
+                    BindingDataList: [],
                 },
 
                 updateDialog: {
@@ -700,6 +707,11 @@
                 if (this.updateItem.CMSContentSectionId && this.updateItem.CMSContentSectionId > 0) {
                     this.selectedContentSections = this.updateItem.CMSContentSectionId;
                 }
+
+                this.lessonSelectorSetting.selectedItems = [];
+                this.chapterSelectorSetting.selectedItems = [];
+
+                this.tabsSetting.tab = 0;
             },
 
             openCreate: function (item) {
@@ -745,6 +757,7 @@
             openEdit: function (item) {
                 this.prepareUpdateItem(item);
 
+                //父节点处理
                 if (item.ParentId > 0) {
                     let parent = this.getParentNode(this.searchResult.list, item.ParentId);
                     if (parent) {
@@ -756,7 +769,62 @@
                     this.updateItem.Parent = null;
                 }
 
+                console.log(item);
+
+                //绑定数据处理
+                if (item.BindingDataList && item.BindingDataList.length > 0) {
+                    let type = item.BindingDataList[0].BindingDataType;
+                    let ids = new Array();
+                    item.BindingDataList.forEach(val => {
+                        ids.push(val.BindingDataId);
+                    })
+
+                    if (type === 1) {
+                        this.contentType.selected = '1';
+                        this.getLessonsByIds(ids);
+                    } else if (type === 2) {
+                        this.contentType.selected = '2';
+                        this.getChaptersByIds(ids);
+                    }
+                }
+
                 this.updateDialog.isShow = true;
+            },
+
+            getLessonsByIds(ids) {
+                this.lessonSelectorSetting.selectedItems = [];
+
+                this.postAxios('/api/course/backend/lesson/GetEnableByIds', JSON.stringify({
+                    ids: ids,
+                })).then(res => {
+                    if (res.errorcode === 0) {
+                        if (res.result && res.result.Data) {
+                            this.lessonSelectorSetting.selectedItems = res.result.Data;
+                        }
+                    } else {
+
+                    }
+                }).catch(error => {
+
+                });
+            },
+
+            getChaptersByIds(ids) {
+                this.chapterSelectorSetting.selectedItems = [];
+
+                this.postAxios('/api/course/backend/chapter/GetEnableByIds', JSON.stringify({
+                    ids: ids,
+                })).then(res => {
+                    if (res.errorcode === 0) {
+                        if (res.result && res.result.Data) {
+                            this.chapterSelectorSetting.selectedItems = res.result.Data;
+                        }
+                    } else {
+
+                    }
+                }).catch(error => {
+
+                });
             },
 
             getParentNode: function (treelist, parentId) {
@@ -800,10 +868,13 @@
                 if (this.updateItem.Id === 0) {
                     this.postAxios('/api/cms/backend/pagelayout/ItemCreate', JSON.stringify(this.updateItem)).then((data) => {
                         if (data.errorcode === 0) {
-                            this.loadingDialog.isShow = false;
-                            this.updateDialog.isShow = false;
-                            this.$toast.success('新增成功.', { x: 'right', y: 'bottom', timeout: 2000, showClose: true, });
-                            this.search(0);
+                            // this.loadingDialog.isShow = false;
+                            // this.updateDialog.isShow = false;
+                            // this.$toast.success('新增成功.', { x: 'right', y: 'bottom', timeout: 2000, showClose: true, });
+                            // this.search(0);
+                            
+                            this.saveBindingData(data.result);
+                            
                         } else {
                             this.loadingDialog.isShow = false;
                             this.$toast.error('新增失败,请重新提交.</br>' + data.errormsg, { x: 'right', y: 'bottom', timeout: 2000, showClose: true, });
@@ -816,10 +887,12 @@
                 } else if (this.updateItem.Id > 0) {
                     this.postAxios('/api/cms/backend/pagelayout/ItemEdit', JSON.stringify(this.updateItem)).then((data) => {
                         if (data.errorcode === 0) {
-                            this.loadingDialog.isShow = false;
-                            this.updateDialog.isShow = false;
-                            this.$toast.success('修改成功.', { x: 'right', y: 'bottom', timeout: 2000, showClose: true, });
-                            this.search(0);
+                            // this.loadingDialog.isShow = false;
+                            // this.updateDialog.isShow = false;
+                            // this.$toast.success('修改成功.', { x: 'right', y: 'bottom', timeout: 2000, showClose: true, });
+                            // this.search(0);
+
+                            this.saveBindingData(data.result);
                         } else {
                             this.loadingDialog.isShow = false;
                             this.$toast.error('修改失败,请重新提交.</br>' + data.errormsg, { x: 'right', y: 'bottom', timeout: 2000, showClose: true, });
@@ -831,6 +904,62 @@
                 } else {
                     this.loadingDialog.isShow = false;
                 }
+            },
+
+            //保存绑定显示数据
+            saveBindingData(item) {
+                let bindingDataType = 0;
+                let bindingDataIds = new Array();
+                let needSave = false;
+                if (this.contentType.selected === '1') {
+                    if (this.lessonSelectorSetting.selectedItems && this.lessonSelectorSetting.selectedItems.length > 0) {
+                        bindingDataType = 1;
+                        this.lessonSelectorSetting.selectedItems.forEach(val => {
+                            bindingDataIds.push(val.Id);
+                        })
+                        needSave = true;
+                    }
+                } else if (this.contentType.selected === '2') {
+                    if (this.chapterSelectorSetting.selectedItems && this.chapterSelectorSetting.selectedItems.length > 0) {
+                        bindingDataType = 2;
+                        this.chapterSelectorSetting.selectedItems.forEach(val => {
+                            bindingDataIds.push(val.Id);
+                        })
+                        needSave = true;
+                    }
+                }
+
+                // console.log('save binding data');
+                // console.log(needSave);
+                // console.log(bindingDataIds);
+                // console.log(bindingDataType);
+
+                if(needSave) {
+                    this.postAxios('/api/cms/backend/pagelayout/AddBindingData', JSON.stringify({
+                        pageLayoutItemId: item.Id,
+                        dataType: bindingDataType,
+                        ids: bindingDataIds
+                    })).then(res => {
+                        if(res.errorcode === 0) {
+                            this.loadingDialog.isShow = false;
+                            this.updateDialog.isShow = false;
+                            this.$toast.success('保存成功.', { x: 'right', y: 'bottom', timeout: 2000, showClose: true, });
+                            this.search(0);
+                        } else {
+                            this.loadingDialog.isShow = false;
+                            this.$toast.error('保存失败,请重新提交.</br>' + data.errormsg, { x: 'right', y: 'bottom', timeout: 2000, showClose: true, });
+                        }
+                    }).catch(error => {
+                        this.loadingDialog.isShow = false;
+                        this.$toast.error('保存失败,请重新提交.', { x: 'right', y: 'bottom', timeout: 2000, showClose: true, });
+                    });
+                } else {
+                    this.loadingDialog.isShow = false;
+                    this.updateDialog.isShow = false;
+                    this.$toast.success('保存成功.', { x: 'right', y: 'bottom', timeout: 2000, showClose: true, });
+                    this.search(0);
+                }
+
             },
 
             closeUpdate: function () {
