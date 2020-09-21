@@ -214,6 +214,24 @@ const router = new Router({
                     component: () => import(/* webpackChunkName: "role" */ "@/views/marketing/coupon.vue")
                 },
                 {
+                    path: "/marketing/coupon/cdkey/:id",
+                    name: "CouponCDKeyManage",
+                    meta: { title: "优惠券卡密", group: "apps", icon: "dashboard" },
+                    component: () => import(/* webpackChunkName: "role" */ "@/views/marketing/couponcdkey.vue")
+                },
+                {
+                    path: "/marketing/coupon/history/:id",
+                    name: "CouponHistory",
+                    meta: { title: "优惠券日志", group: "apps", icon: "dashboard" },
+                    component: () => import(/* webpackChunkName: "role" */ "@/views/marketing/couponhistory.vue")
+                },
+                {
+                    path: "/marketing/coupon/cdkeyhistory/:id",
+                    name: "CouponCDKeyHistory",
+                    meta: { title: "优惠券卡密日志", group: "apps", icon: "dashboard" },
+                    component: () => import(/* webpackChunkName: "role" */ "@/views/marketing/couponcdkeyhistory.vue")
+                },
+                {
                     path: "/marketing/groupbuy",
                     name: "GroupBuyManage",
                     meta: { title: "团购", group: "apps", icon: "dashboard" },

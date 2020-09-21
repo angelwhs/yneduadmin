@@ -62,8 +62,17 @@
                                             <v-icon size="20" class="mr-4" @click="openEdit(item)">
                                                 edit
                                             </v-icon>
-                                            <v-icon size="20" color="deep-orange" @click="confirmDelete(item)">
+                                            <v-icon class="mr-4" size="20" color="deep-orange" @click="confirmDelete(item)">
                                                 mdi-delete-forever</v-icon>
+                                            <v-btn small outlined color="primary" class="mr-4" @click="gotoCDKey(item)">
+                                                卡密
+                                            </v-btn>
+                                            <v-btn small outlined color="primary" class="mr-4" @click="gotoCDKeyHistory(item)">
+                                                卡密日志
+                                            </v-btn>
+                                            <v-btn small outlined color="primary" class="mr-4" @click="gotoHistory(item)">
+                                                优惠券日志
+                                            </v-btn>
                                         </td>
                                     </tr>
                                 </template>
@@ -123,21 +132,22 @@
                                     <!--是否启用-->
                                     <v-row>
                                         <v-col cols="12" md="12">
-                                            <v-text-field v-model="updateItem.Title" dense label="名称" placeholder="请输入名称"
-                                                :rules="[() => !!updateItem.Title || '不能为空.']" :error-messages="errorMessages"
-                                                ref="EntityTitle">
+                                            <v-text-field v-model="updateItem.Title" dense label="名称"
+                                                placeholder="请输入名称" :rules="[() => !!updateItem.Title || '不能为空.']"
+                                                :error-messages="errorMessages" ref="EntityTitle">
                                             </v-text-field>
                                         </v-col>
                                     </v-row>
                                     <v-row>
                                         <v-col cols="12" md="6">
-                                            <v-text-field v-model="updateItem.DisplayOrder" label="排序" dense placeholder="请输入排序"
-                                                :error-messages="errorMessages" ref="EntityDisplayOrder" type="number">
+                                            <v-text-field v-model="updateItem.DisplayOrder" label="排序" dense
+                                                placeholder="请输入排序" :error-messages="errorMessages"
+                                                ref="EntityDisplayOrder" type="number">
                                             </v-text-field>
                                         </v-col>
                                         <v-col cols="12" md="6">
-                                            <v-select :items="statusList" dense label="状态" item-text="Name" item-value="Id"
-                                                placeholder="请选择状态" v-model="updateItem.Status">
+                                            <v-select :items="statusList" dense label="状态" item-text="Name"
+                                                item-value="Id" placeholder="请选择状态" v-model="updateItem.Status">
                                             </v-select>
                                         </v-col>
                                     </v-row>
@@ -211,11 +221,13 @@
                                                 <span class="item-text-style">满</span>
                                                 <div style="width: 80px;">
                                                     <v-text-field v-model="updateItem.BaseAmount" dense placeholder="0"
-                                                        :error-messages="errorMessages" ref="EntityBaseAmount" type="number">
+                                                        :error-messages="errorMessages" ref="EntityBaseAmount"
+                                                        type="number">
                                                     </v-text-field>
                                                 </div>
 
-                                                <template v-if="updateItem.CouponType === 1 || updateItem.CouponType === 2">
+                                                <template
+                                                    v-if="updateItem.CouponType === 1 || updateItem.CouponType === 2">
                                                     <span class="item-text-style">元 </span>
                                                 </template>
                                                 <template v-else-if="updateItem.CouponType === 3">
@@ -224,9 +236,9 @@
                                                 <template v-if="updateItem.CouponType === 1">
                                                     <span class="item-text-style">减</span>
                                                     <div style="width: 80px;">
-                                                        <v-text-field v-model="updateItem.DiscountAmount" dense placeholder="0"
-                                                            :error-messages="errorMessages" ref="EntityDiscountAmount"
-                                                            type="number">
+                                                        <v-text-field v-model="updateItem.DiscountAmount" dense
+                                                            placeholder="0" :error-messages="errorMessages"
+                                                            ref="EntityDiscountAmount" type="number">
                                                         </v-text-field>
                                                     </div>
 
@@ -252,11 +264,13 @@
                                     <!--领取结束时间-->
                                     <v-row>
                                         <v-col cols="12" md="6">
-                                            <v-menu v-model="datePickSettings.beginTimeMenu" :close-on-content-click="false"
-                                                :nudge-right="40" transition="scale-transition" offset-y min-width="290px">
+                                            <v-menu v-model="datePickSettings.beginTimeMenu"
+                                                :close-on-content-click="false" :nudge-right="40"
+                                                transition="scale-transition" offset-y min-width="290px">
                                                 <template v-slot:activator="{ on, attrs }">
                                                     <v-text-field v-model="updateItem.BeginTime" label="领取开始时间" dense
-                                                        prepend-icon="event" readonly v-bind="attrs" v-on="on"></v-text-field>
+                                                        prepend-icon="event" readonly v-bind="attrs" v-on="on">
+                                                    </v-text-field>
                                                 </template>
                                                 <v-date-picker v-model="updateItem.BeginTime"
                                                     @input="datePickSettings.beginTimeMenu = false"></v-date-picker>
@@ -265,11 +279,13 @@
                                     </v-row>
                                     <v-row>
                                         <v-col cols="12" md="6">
-                                            <v-menu v-model="datePickSettings.endTimeMenu" :close-on-content-click="false"
-                                                :nudge-right="40" transition="scale-transition" offset-y min-width="290px">
+                                            <v-menu v-model="datePickSettings.endTimeMenu"
+                                                :close-on-content-click="false" :nudge-right="40"
+                                                transition="scale-transition" offset-y min-width="290px">
                                                 <template v-slot:activator="{ on, attrs }">
                                                     <v-text-field v-model="updateItem.EndTime" label="领取结束时间" dense
-                                                        prepend-icon="event" readonly v-bind="attrs" v-on="on"></v-text-field>
+                                                        prepend-icon="event" readonly v-bind="attrs" v-on="on">
+                                                    </v-text-field>
                                                 </template>
                                                 <v-date-picker v-model="updateItem.EndTime"
                                                     @input="datePickSettings.endTimeMenu = false"></v-date-picker>
@@ -302,24 +318,25 @@
                                     <!--优惠码-->
                                     <v-row>
                                         <v-col cols="12" md="6">
-                                            <v-text-field v-model="updateItem.TotalExchangeQuantity" dense placeholder="0"
-                                                label="总可兑换数量" :error-messages="errorMessages" ref="EntityTotalExchangeQuantity"
-                                                type="number">
+                                            <v-text-field v-model="updateItem.TotalExchangeQuantity" dense
+                                                placeholder="0" label="总可兑换数量" :error-messages="errorMessages"
+                                                ref="EntityTotalExchangeQuantity" type="number">
                                             </v-text-field>
                                         </v-col>
-                                        
+
                                     </v-row>
                                     <v-row>
                                         <v-col cols="12" md="6">
-                                            <v-text-field v-model="updateItem.ExchangeQuantityByPerPerson" dense placeholder="0"
-                                                label="每个用户可兑换数量" :error-messages="errorMessages"
+                                            <v-text-field v-model="updateItem.ExchangeQuantityByPerPerson" dense
+                                                placeholder="0" label="每个用户可兑换数量" :error-messages="errorMessages"
                                                 ref="EntityExchangeQuantityByPerPerson" type="number">
                                             </v-text-field>
                                         </v-col>
                                     </v-row>
                                     <v-row>
                                         <v-col cols="12" md="2">
-                                            <v-switch v-model="updateItem.RequiresCouponCode" label="是否使用优惠码"></v-switch>
+                                            <v-switch v-model="updateItem.RequiresCouponCode" label="是否使用优惠码">
+                                            </v-switch>
                                         </v-col>
                                     </v-row>
                                     <v-row>
@@ -343,19 +360,21 @@
                                     <!--有效期结束时间-->
                                     <v-row>
                                         <v-col cols="12" md="6">
-                                            <v-select :items="termOfValidityTypeList" dense label="有效期方式" item-text="Name"
-                                                item-value="Id" placeholder="请选择有效期方式" v-model="updateItem.TermOfValidityType">
+                                            <v-select :items="termOfValidityTypeList" dense label="有效期方式"
+                                                item-text="Name" item-value="Id" placeholder="请选择有效期方式"
+                                                v-model="updateItem.TermOfValidityType">
                                             </v-select>
                                         </v-col>
                                     </v-row>
                                     <v-row>
                                         <v-col cols="12" md="6">
                                             <v-menu v-model="datePickSettings.termOfValidityBeginTimeMenu"
-                                                :close-on-content-click="false" :nudge-right="40" transition="scale-transition"
-                                                offset-y min-width="290px">
+                                                :close-on-content-click="false" :nudge-right="40"
+                                                transition="scale-transition" offset-y min-width="290px">
                                                 <template v-slot:activator="{ on, attrs }">
-                                                    <v-text-field v-model="updateItem.TermOfValidityBeginTime" label="有效期开始时间"
-                                                        dense prepend-icon="event" readonly v-bind="attrs" v-on="on"
+                                                    <v-text-field v-model="updateItem.TermOfValidityBeginTime"
+                                                        label="有效期开始时间" dense prepend-icon="event" readonly
+                                                        v-bind="attrs" v-on="on"
                                                         :disabled="updateItem.TermOfValidityType !== 2"></v-text-field>
                                                 </template>
                                                 <v-date-picker v-model="updateItem.TermOfValidityBeginTime"
@@ -367,23 +386,26 @@
                                     <v-row>
                                         <v-col cols="12" md="6">
                                             <v-menu v-model="datePickSettings.termOfValidityEndTimeMenu"
-                                                :close-on-content-click="false" :nudge-right="40" transition="scale-transition"
-                                                offset-y min-width="290px">
+                                                :close-on-content-click="false" :nudge-right="40"
+                                                transition="scale-transition" offset-y min-width="290px">
                                                 <template v-slot:activator="{ on, attrs }">
-                                                    <v-text-field v-model="updateItem.TermOfValidityEndTime" label="有效期结束时间"
-                                                        dense prepend-icon="event" readonly v-bind="attrs" v-on="on"
+                                                    <v-text-field v-model="updateItem.TermOfValidityEndTime"
+                                                        label="有效期结束时间" dense prepend-icon="event" readonly
+                                                        v-bind="attrs" v-on="on"
                                                         :disabled="updateItem.TermOfValidityType !== 2"></v-text-field>
                                                 </template>
                                                 <v-date-picker v-model="updateItem.TermOfValidityEndTime"
-                                                    @input="datePickSettings.termOfValidityEndTimeMenu = false"></v-date-picker>
+                                                    @input="datePickSettings.termOfValidityEndTimeMenu = false">
+                                                </v-date-picker>
                                             </v-menu>
                                         </v-col>
                                     </v-row>
                                     <v-row>
                                         <v-col cols="12" md="6">
                                             <v-text-field v-model="updateItem.TermOfValidityDays" dense placeholder="0"
-                                                label="有效期天数" :error-messages="errorMessages" ref="EntityTermOfValidityDays"
-                                                type="number" :disabled="updateItem.TermOfValidityType !== 1">
+                                                label="有效期天数" :error-messages="errorMessages"
+                                                ref="EntityTermOfValidityDays" type="number"
+                                                :disabled="updateItem.TermOfValidityType !== 1">
                                             </v-text-field>
                                         </v-col>
                                     </v-row>
@@ -397,7 +419,8 @@
                                     <v-row>
                                         <v-col>
                                             <v-select :items="appliedToTypeList" dense label="优惠券适用类型" item-text="Name"
-                                                item-value="Id" placeholder="请选择优惠券适用类型" v-model="updateItem.AppliedToType">
+                                                item-value="Id" placeholder="请选择优惠券适用类型"
+                                                v-model="updateItem.AppliedToType">
                                             </v-select>
                                         </v-col>
                                     </v-row>
@@ -443,7 +466,8 @@
                                                                                     <td>{{ item.Title }}</td>
                                                                                     <td>{{ item.Created }}</td>
                                                                                     <td>
-                                                                                        <v-icon size="20" color="deep-orange"
+                                                                                        <v-icon size="20"
+                                                                                            color="deep-orange"
                                                                                             @click="lessonDelete(item)">
                                                                                             mdi-delete-forever</v-icon>
                                                                                     </td>
@@ -464,7 +488,8 @@
                                                     </template>
                                                     <v-row>
                                                         <v-col class="d-flex justify-center align-center">
-                                                            <v-btn @click="lessonSelectorShow" small color="light-blue darken-1">
+                                                            <v-btn @click="lessonSelectorShow" small
+                                                                color="light-blue darken-1">
                                                                 <span style="color: white;">添加课程</span>
                                                             </v-btn>
                                                         </v-col>
@@ -478,7 +503,8 @@
                                             <!--任课讲师-->
                                             <v-row>
                                                 <v-col cols="12" md="12">
-                                                    <template v-if="updateItem.AppliedToLecturers && updateItem.AppliedToLecturers.length">
+                                                    <template
+                                                        v-if="updateItem.AppliedToLecturers && updateItem.AppliedToLecturers.length">
                                                         <v-card class="mt-0 mb-0 ml-12 mr-12" outlined>
                                                             <v-row>
                                                                 <v-col>
@@ -577,8 +603,10 @@
                     <v-card-title class="headline"><span class="red--text">警告</span></v-card-title>
                     <v-card-text>
                         <p class="mb-1 subtitle-1 font-weight-bold">是否删除该项目?</p>
-                        <p class="mb-1">名称：{{updateItem.Name}}</p>
-                        <p class="mb-1">描述：{{updateItem.Description}}</p>
+                        <p class="mb-1">Id：{{updateItem.Id}}</p>
+                        <p class="mb-1">名称：{{updateItem.Title}}</p>
+                        <p class="mb-1">类型：{{getCouponType(updateItem.CouponType)}}</p>
+                        <p class="mb-1">优惠内容：{{getCouponContent(updateItem)}}</p>
                     </v-card-text>
                     <v-card-actions>
                         <v-spacer></v-spacer>
@@ -595,8 +623,10 @@
                     <v-card-text>
                         <p v-if="updateItem.Enable" class="mb-1 subtitle-1 font-weight-bold">是否禁用该项目?</p>
                         <p v-else class="mb-1 subtitle-1 font-weight-bold">是否启用该项目?</p>
-                        <p class="mb-1">名称：{{updateItem.Name}}</p>
-                        <p class="mb-1">描述：{{updateItem.Description}}</p>
+                        <p class="mb-1">Id：{{updateItem.Id}}</p>
+                        <p class="mb-1">名称：{{updateItem.Title}}</p>
+                        <p class="mb-1">类型：{{getCouponType(updateItem.CouponType)}}</p>
+                        <p class="mb-1">优惠内容：{{getCouponContent(updateItem)}}</p>
                     </v-card-text>
                     <v-card-actions>
                         <v-spacer></v-spacer>
@@ -880,12 +910,12 @@
 
                 //初始化时间
                 let begindate = new Date();
-                let daysms = 30 * (1000 * 60 * 60 * 24);
+                let daysms = 30 * (1000 * 60 * 60 * 24);
                 let enddate = new Date(begindate.getTime() + daysms);
 
                 this.updateItem.BeginTime = formatDate(begindate, 'yyyy-MM-dd');
                 this.updateItem.EndTime = formatDate(enddate, 'yyyy-MM-dd');
-                this.updateItem.TermOfValidityBeginTime = formatDate(begindate, 'yyyy-MM-dd'); 
+                this.updateItem.TermOfValidityBeginTime = formatDate(begindate, 'yyyy-MM-dd');
                 this.updateItem.TermOfValidityEndTime = formatDate(enddate, 'yyyy-MM-dd');
 
                 this.updateDialog.isShow = true;
@@ -951,7 +981,7 @@
                         couponId: couponId,
                         categories: null,
                     })).then((data) => {
-                        if(data.errorcode === 0) {
+                        if (data.errorcode === 0) {
                             resolve(data);
                         } else {
                             resolve(data);
@@ -1077,10 +1107,10 @@
 
             // #region 课程选择器
             lessonSelectorShowChange: function (val) {
-                if(!val) {
+                if (!val) {
                     this.lessonSelectorSetting.show = val;
                 }
-                
+
             },
 
             lessonSelectorConfirm: function (selectedItems) {
@@ -1205,6 +1235,41 @@
 
                 return res;
             },
+
+
+            gotoCDKey(item) {
+                if (!item) {
+                    return;
+                }
+
+                this.$router.push({
+                    name: 'CouponCDKeyManage',
+                    params: { id: item.Id },
+                });
+            },
+
+            gotoHistory(item) {
+                if (!item) {
+                    return;
+                }
+
+                this.$router.push({
+                    name: 'CouponHistory',
+                    params: { id: item.Id },
+                });
+            },
+
+            gotoCDKeyHistory(item) {
+                if (!item) {
+                    return;
+                }
+
+                this.$router.push({
+                    name: 'CouponCDKeyHistory',
+                    params: { id: item.Id },
+                });
+            },
+
         },
     }
 </script>
