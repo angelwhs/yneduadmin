@@ -67,8 +67,18 @@
                             :tree-props="{children: 'Childs', hasChildren: 'Childs.length > 0'}">
                             <el-table-column prop="Id" label="Id" align="center" min-width="60"></el-table-column>
                             <el-table-column prop="Title" label="标题"></el-table-column>
-                            <el-table-column prop="DisplayOrder" label="排序" min-width="20"></el-table-column>
-                            <el-table-column prop="Enable" label="状态" min-width="30">
+                            <el-table-column prop="DisplayOrder" label="排序" align="center" min-width="20"></el-table-column>
+                            <el-table-column prop="LayoutType" label="页面内容类型" align="center" min-width="40">
+                                <template slot-scope="scope">
+                                    <span>{{getLayoutItemTypeName(scope.row.LayoutType)}}</span>
+                                </template>
+                            </el-table-column>
+                            <el-table-column prop="ControlType" label="控件类型" align="center" min-width="30">
+                                <template slot-scope="scope">
+                                    <span>{{getControlTypeName(scope.row.ControlType)}}</span>
+                                </template>
+                            </el-table-column>
+                            <el-table-column prop="Enable" label="状态" align="center" min-width="30">
                                 <template slot-scope="scope">
                                     <v-icon size="20" v-if="!scope.row.Enable" @click="confirmSetEnable(scope.row)"
                                         color="red lighten-2">
@@ -583,6 +593,7 @@
                 ],
 
                 controlTypeList: [
+                    { Id: 0, Name: '无' },
                     { Id: 1, Name: '滚动控件' },
                     { Id: 2, Name: '图片菜单' },
                     { Id: 3, Name: '详情卡片' },
@@ -1049,10 +1060,36 @@
                 this.updateItem[pictureUrlField] = selectItem.ImageUrl;
             },
 
-            getLayoutTypeName: function (layoutType) {
+            getLayoutTypeName: function(layoutType) {
                 let name = '未知';
 
                 switch (layoutType) {
+                    case 1:
+                        name = '页面';
+                        break;
+                    case 2:
+                        name = '控件';
+                        break;
+                    case 3:
+                        name = 'Tab页面';
+                        break;
+                    case 11:
+                        name = '全部CMS栏目';
+                        break;
+                    case 12:
+                        name = '单个CMS栏目';
+                        break;
+                    default:
+                        break;
+                }
+
+                return name;
+            },
+
+            getLayoutItemTypeName(layoutItemType) {
+                let name = '未知';
+
+                switch(layoutItemType) {
                     case 1:
                         name = '页面';
                         break;
@@ -1070,7 +1107,7 @@
             },
 
             getControlTypeName(controlType) {
-                let name = '未知';
+                let name = '';
 
                 switch (controlType) {
                     case 1:
@@ -1094,6 +1131,8 @@
                     default:
                         break;
                 }
+
+                return name;
             },
 
             gotoBack() {
