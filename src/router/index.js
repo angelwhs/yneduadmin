@@ -232,6 +232,12 @@ const router = new Router({
                     component: () => import(/* webpackChunkName: "role" */ "@/views/marketing/couponcdkeyhistory.vue")
                 },
                 {
+                    path: "/marketing/coupon/rule/:id",
+                    name: "CouponRule",
+                    meta: { title: "优惠券发放规则", group: "apps", icon: "dashboard" },
+                    component: () => import(/* webpackChunkName: "role" */ "@/views/marketing/couponrule.vue")
+                },
+                {
                     path: "/marketing/groupbuy",
                     name: "GroupBuyManage",
                     meta: { title: "团购", group: "apps", icon: "dashboard" },

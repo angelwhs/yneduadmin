@@ -108,7 +108,7 @@ function apiAxios(method, url, params) {
         params: method === 'GET' || method === 'DELETE' ? params : null,
         //data: method === 'POST' || method === 'PUT' ? qs.stringify(params) : null,
         data: method === 'POST' || method === 'PUT' ? params : null,
-        timeout: 10000,
+        timeout: 30000,
         headers: {
             'Content-Type': 'application/json;charset=UTF-8',
             'x-api-version': '1.0',

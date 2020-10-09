@@ -71,7 +71,10 @@
                                                 卡密日志
                                             </v-btn>
                                             <v-btn small outlined color="primary" class="mr-4" @click="gotoHistory(item)">
-                                                优惠券日志
+                                                使用日志
+                                            </v-btn>
+                                            <v-btn small outlined color="primary" class="mr-4" @click="gotoIssuanceRule(item)">
+                                                发放规则
                                             </v-btn>
                                         </td>
                                     </tr>
@@ -1266,6 +1269,17 @@
 
                 this.$router.push({
                     name: 'CouponCDKeyHistory',
+                    params: { id: item.Id },
+                });
+            },
+
+            gotoIssuanceRule(item) {
+                if (!item) {
+                    return;
+                }
+
+                this.$router.push({
+                    name: 'CouponRule',
                     params: { id: item.Id },
                 });
             },

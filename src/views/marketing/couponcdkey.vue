@@ -24,6 +24,9 @@
                             <p class="ml-6 mt-2 mb-1 grey--text text--darken-1">
                                 名称：{{ couponItem.Title }}
                             </p>
+                            <p class="ml-6 mt-2 mb-1 grey--text text--darken-1">
+                                优惠内容：{{getCouponContent(couponItem)}}
+                            </p>
                         </v-expansion-panel-content>
                     </v-expansion-panel>
                 </v-expansion-panels>
@@ -52,7 +55,7 @@
                         <v-toolbar-title class="title">查询结果</v-toolbar-title>
                         <v-divider class="mx-4" inset vertical></v-divider>
                         <v-btn color="primary" dark class="mb-2" @click="openCreate">新建</v-btn>
-                        <v-btn color="primary" dark class="mb-2" @click="openCreate">批量导入</v-btn>
+                        <v-btn color="primary" dark class="ml-4 mb-2" @click="openCreate">批量导入</v-btn>
                         <v-spacer></v-spacer>
                     </v-toolbar>
 
@@ -63,15 +66,24 @@
                                 <tr>
                                     <th class="text-left">卡号</th>
                                     <th class="text-left">密码</th>
+                                    <th class="text-left">已使用</th>
                                     <th class="text-left">状态</th>
                                     <th class="text-left">操作</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <template v-if="searchResult.list && searchResult.list.length > 0">
-                                    <tr v-for="item in searchResult.list" :key="item.Id">
+                                <template v-if="searchModel.list && searchModel.list.length > 0">
+                                    <tr v-for="item in searchModel.list" :key="item.Id">
                                         <td>{{ item.CardNumber }}</td>
                                         <td>{{ item.CardPassword }}</td>
+                                        <td>
+                                            <template v-if="item.Used">
+                                                <span class="used-text">已使用</span>
+                                            </template>
+                                            <template v-else>
+                                                <span class="unused-text">未使用</span>
+                                            </template>
+                                        </td>
                                         <td>
                                             <v-icon size="20" v-if="!item.Enable" @click="confirmSetEnable(item)"
                                                 color="red lighten-2">
@@ -86,15 +98,7 @@
                                             <v-icon size="20" class="mr-4" @click="openEdit(item)">edit</v-icon>
                                             <v-icon size="20" color="deep-orange" @click="confirmDelete(item)">
                                                 mdi-delete-forever</v-icon>
-                                            <v-btn small outlined text color="primary" class="ml-4"
-                                                @click="getRoleItemModules(item)" :loading="getModulesLoading"
-                                                :disabled="getModulesLoading">
-                                                设置菜单
-                                            </v-btn>
-                                            <v-btn small outlined color="primary" class="ml-4"
-                                                @click="openAPIListDialog(item)">
-                                                设置接口
-                                            </v-btn>
+                                            
                                         </td>
                                     </tr>
                                 </template>
@@ -117,7 +121,7 @@
             <!--批量导入-->
 
             <!--创建/更新-->
-            <v-dialog v-model="editDialog.isShow" max-width="800px" persistent :disabled="saveRoleLoading">
+            <v-dialog v-model="updateDialog.isShow" max-width="800px" persistent >
                 <v-card ref="form">
                     <v-card-title>
                         <span class="headline mr-4">{{updateItem.Id === 0 ? '新建' : '编辑'}}</span><span>卡密</span>
@@ -145,9 +149,9 @@
 
                     <v-card-actions>
                         <v-spacer></v-spacer>
-                        <v-btn color="blue darken-1" text @click="closeEdit" :disabled="saveRoleLoading">取消
+                        <v-btn color="blue darken-1" text @click="closeUpdate">取消
                         </v-btn>
-                        <v-btn color="primary" @click="saveEdit" :loading="saveRoleLoading" :disabled="saveRoleLoading">
+                        <v-btn color="primary" @click="saveUpdate" >
                             保存</v-btn>
                     </v-card-actions>
                 </v-card>
@@ -213,6 +217,8 @@
                     loading: false,
                     pageSize: 20,
                     list: [],
+
+                    totalCount: 0,
                 },
 
                 pageSetting: {
@@ -268,20 +274,240 @@
                     ExchangeQuantityByPerPerson: 0, //每个用户可兑换数量
                     AppliedToType: 0, //优惠券适用类型
                 },
+
+
+                updateDialog: {
+                    isShow: false,
+                },
+
+                saveLoading: false,
+                errorMessages: '',
+                loadingDialog: {
+                    isShow: false,
+                    message: '数据加载中,请稍后...',
+                },
+                deleteDialog: false,
+                setEnableDialog: false,
+
+
             }
         },
 
         mounted() {
-            
+            let id = this.$route.params.id;
+            this.getCouponInfo(id);
+
+            this.search(0);
         },
 
         methods: {
-            
 
-            getCouponInfo(couponId) {
-                
+            search: function (pageIndex) {
+                let id = this.$route.params.id;
+
+                this.loadingDialog.isShow = true;
+
+                this.getAxios('/api/marketing/backend/couponcdkey/list', {
+                    couponId: id,
+                    searchName: this.searchModel.searchName,
+                    pageIndex: pageIndex,
+                    pageSize: this.searchModel.pageSize,
+                }).then((data) => {
+                    if (data.errorcode === 0) {
+                        this.pageSetting.page = data.result.PageIndex + 1;
+                        this.pageSetting.length = data.result.TotalPages;
+
+                        this.searchModel.totalCount = data.result.TotalCount;
+
+                        this.searchModel.list = data.result.Data;
+
+                        //console.log(data.result.Data);
+                    } else {
+
+                    }
+                    this.loadingDialog.isShow = false;
+                }).catch((error) => {
+
+                    this.loadingDialog.isShow = false;
+                });
             },
 
+            prepareUpdateItem: function (item) {
+                this.updateItem.Id = item.Id;
+                this.updateItem.Description = item.Description;
+                this.updateItem.Enable = item.Enable;
+                this.updateItem.Name = item.Name;
+                this.updateItem.Created = item.Created;
+                this.updateItem.CouponId = item.CouponId;
+                this.updateItem.CardNumber = item.CardNumber;
+                this.updateItem.CardPassword = item.CardPassword;
+                this.updateItem.Used = item.Used;
+            },
+
+            openCreate: function () {
+                let id = this.$route.params.id;
+
+                this.updateItem.Id = 0;
+                this.updateItem.Description = '';
+                this.updateItem.Enable = true;
+                this.updateItem.Name = '';
+                this.updateItem.Created = '';
+                this.updateItem.CouponId = 0;
+                this.updateItem.CardNumber = '';
+                this.updateItem.CardPassword = ''; 
+                this.updateItem.Used = false; 
+
+                this.updateDialog.isShow = true;
+            },
+
+            openEdit: function (item) {
+                this.prepareUpdateItem(item);
+
+                this.updateDialog.isShow = true;
+            },
+
+            saveUpdate() {
+                this.loadingDialog.message = '正在提交数据...';
+                this.loadingDialog.isShow = true;
+
+                if(this.couponItem) {
+                    this.updateItem.CouponId = this.couponItem.Id;
+                }
+
+                if (this.updateItem.Id === 0) {
+                    this.postAxios('/api/marketing/backend/couponcdkey/create', JSON.stringify(this.updateItem)).then((data) => {
+                        if (data.errorcode === 0) {
+                            this.loadingDialog.isShow = false;
+                            this.updateDialog.isShow = false;
+                            this.$toast.success('新增成功.', { x: 'center', y: 'top', timeout: 2000, showClose: true, });
+                            this.search(0);
+                        } else {
+                            this.loadingDialog.isShow = false;
+                            this.$toast.error('新增失败,请重新提交.</br>' + data.errormsg, { x: 'center', y: 'top', timeout: 2000, showClose: true, });
+                            //console.log(data);
+                        }
+                    }).catch((error) => {
+                        this.loadingDialog.isShow = false;
+                        this.$toast.error('新增失败,请重新提交.', { x: 'center', y: 'top', timeout: 2000, showClose: true, });
+                    });
+                } else if (this.updateItem.Id > 0) {
+                    this.postAxios('/api/marketing/backend/couponcdkey/edit', JSON.stringify(this.updateItem)).then((data) => {
+                        if (data.errorcode === 0) {
+                            this.loadingDialog.isShow = false;
+                            this.updateDialog.isShow = false;
+                            this.$toast.success('修改成功.', { x: 'center', y: 'top', timeout: 2000, showClose: true, });
+                            this.search(0);
+                        } else {
+                            this.loadingDialog.isShow = false;
+                            this.$toast.error('修改失败,请重新提交.</br>' + data.errormsg, { x: 'center', y: 'top', timeout: 2000, showClose: true, });
+                        }
+                    }).catch((error) => {
+                        this.loadingDialog.isShow = false;
+                        this.$toast.error('新增失败,请重新提交.', { x: 'center', y: 'top', timeout: 2000, showClose: true, });
+                    });
+                } else {
+                    this.loadingDialog.isShow = false;
+                }
+            },
+
+            closeUpdate: function () {
+                this.updateDialog.isShow = false;
+            },
+
+            confirmDelete: function (item) {
+                this.prepareUpdateItem(item);
+                this.deleteDialog = true;
+            },
+
+            saveDelete: function () {
+                this.loadingDialog.message = '正在提交数据...';
+                this.loadingDialog.isShow = true;
+
+                this.getAxios('/api/marketing/backend/couponcdkey/delete', { id: this.updateItem.Id, }).then((data) => {
+                    if (data.errorcode === 0) {
+                        this.loadingDialog.isShow = false;
+                        this.deleteDialog = false;
+                        this.$toast.success('删除成功.', { x: 'center', y: 'top', timeout: 2000, showClose: true, });
+                        this.search(0);
+                    } else {
+                        this.loadingDialog.isShow = false;
+                        this.$toast.error('删除失败,请重新提交.</br>' + data.errormsg, { x: 'center', y: 'top', timeout: 5000, showClose: true, });
+                    }
+                }).catch((error) => {
+                    this.loadingDialog.isShow = false;
+                    this.$toast.error('删除失败,请重新提交.</br>' + error.message, { x: 'center', y: 'top', timeout: 5000, showClose: true, });
+                });
+            },
+
+            confirmSetEnable: function (item) {
+                this.prepareUpdateItem(item);
+                this.setEnableDialog = true;
+            },
+
+            saveSetEnable: function () {
+                this.loadingDialog.message = '正在提交数据...';
+                this.loadingDialog.isShow = true;
+
+                this.getAxios('/api/marketing/backend/couponcdkey/setenable', { id: this.updateItem.Id, }).then((data) => {
+                    if (data.errorcode === 0) {
+                        this.loadingDialog.isShow = false;
+                        this.setEnableDialog = false;
+                        this.$toast.success(this.updateItem.Enable ? '禁用成功.' : '启用成功', { x: 'center', y: 'top', timeout: 2000, showClose: true, });
+                        this.search(0);
+                    } else {
+                        this.loadingDialog.isShow = false;
+                        this.$toast.error(this.updateItem.Enable ? '禁用失败,请重新提交.</br>' + data.errormsg : '启用失败,请重新提交.</br>' + data.errormsg, { x: 'center', y: 'top', timeout: 5000, showClose: true, });
+                    }
+                }).catch((error) => {
+                    this.loadingDialog.isShow = false;
+                    this.$toast.error(this.updateItem.Enable ? '禁用失败,请重新提交.</br>' + error.message : '启用失败,请重新提交.</br>' + error.message, { x: 'center', y: 'top', timeout: 5000, showClose: true, });
+                });
+            },
+
+
+            getCouponInfo(couponId) {
+                this.getAxios('/api/marketing/backend/coupon/GetCouponById', { id: couponId }).then((data) => {
+                    if (data.errorcode === 0) {
+                        this.couponItem = data.result;
+                    } else {
+
+                    }
+                }).catch((error) => {
+
+                });
+            },
+
+            getCouponContent: function (coupon) {
+                let res = '';
+
+                if (coupon) {
+                    if (coupon.CouponType == 1) {
+                        if (coupon.BaseAmount > 0) {
+                            res = '满' + coupon.BaseAmount + '减' + coupon.DiscountAmount;
+                        } else {
+                            res = '无门槛减' + coupon.DiscountAmount;
+                        }
+                    } if (coupon.CouponType == 2) {
+                        if (coupon.BaseAmount > 0) {
+                            res = '满' + coupon.BaseAmount + '元打' + coupon.DiscountPercentage + '折';
+                        } else {
+                            res = coupon.DiscountPercentage + '折';
+                        }
+                    } if (coupon.CouponType == 3) {
+                        if (coupon.BaseAmount > 0) {
+                            res = '满' + coupon.BaseAmount + '件打' + coupon.DiscountPercentage + '折';
+                        } else {
+                            res = coupon.DiscountPercentage + '折';
+                        }
+                    }
+                }
+
+                return res;
+            },
+
+            gotoBack() {
+                this.$router.go(-1);//返回上一层
+            },
 
         },
 
@@ -290,5 +516,11 @@
 </script>
 
 <style scoped>
+    .used-text {
+        color:grey;
+    }
 
+    .unused-text {
+        color:#81C784;
+    }
 </style>
