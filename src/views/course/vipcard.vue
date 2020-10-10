@@ -102,164 +102,177 @@
 
                     <v-card-text>
                         <v-container>
-                            <v-row>
-                                <v-col cols="12" md="12">
-                                    <v-text-field v-model="updateItem.Title" dense label="名称" placeholder="请输入VIP卡名称"
-                                        :rules="[() => !!updateItem.Title || '不能为空.']" :error-messages="errorMessages"
-                                        ref="Entity_Title">
-                                    </v-text-field>
-                                </v-col>
+                            <v-tabs class="mb-4" background-color="white" color="primary " v-model="tabsSetting.tab">
+                                <v-tabs-slider></v-tabs-slider>
+                                <v-tab :key="1">基本信息</v-tab>
+                                <v-tab :key="2">VIP卡介绍</v-tab>
+                                <v-tab :key="3">关联课程</v-tab>
+                            </v-tabs>
 
-                            </v-row>
-
-                            <v-row>
-                                <v-col cols="12" md="3">
-                                    <v-text-field v-model="updateItem.DisplayOrder" label="排序" dense placeholder="请输入排序"
-                                        :error-messages="errorMessages" ref="Entity_DisplayOrder" type="number">
-                                    </v-text-field>
-                                </v-col>
-                                <v-col cols="12" md="3">
-                                    <v-select :items="statusList" dense label="状态" item-text="Name" item-value="Id"
-                                        placeholder="请选择状态" v-model="updateItem.Status">
-                                    </v-select>
-                                </v-col>
-                                <v-col cols="12" md="3">
-                                    <v-switch v-model="updateItem.Enable" label="是否启用" dense></v-switch>
-                                </v-col>
-                            </v-row>
-
-                            <v-row>
-                                <v-col cols="12" md="3">
-                                    <v-text-field v-model="updateItem.TermOfValidity" label="有效期(天)" dense placeholder="请输入有效期"
-                                        :error-messages="errorMessages" ref="EntityTermOfValidity" type="number">
-                                    </v-text-field>
-                                </v-col>
-                                <v-col cols="12" md="3">
-                                    <v-text-field v-model="updateItem.Price" label="价格" dense placeholder="请输入价格"
-                                        :error-messages="errorMessages" ref="EntityPrice" type="number">
-                                    </v-text-field>
-                                </v-col>
-                                <v-col cols="12" md="3">
-                                    <v-text-field v-model="updateItem.PresentationPoints" label="赠送积分" dense placeholder="请输入赠送积分"
-                                        :error-messages="errorMessages" ref="EntityPresentationPoints" type="number">
-                                    </v-text-field>
-                                </v-col>
-                                <v-col cols="12" md="3">
-                                    <v-text-field v-model="updateItem.Discount" label="会员折扣(百分比)" dense placeholder="请输入会员折扣(百分比)"
-                                        :error-messages="errorMessages" ref="EntityDiscount" type="number">
-                                    </v-text-field>
-                                </v-col>
-                            </v-row>
-
-                            <!--关联课程-->
-                            <v-row>
-                                <v-col class="pt-0 pb-0">
-                                    <v-switch v-model="updateItem.HasAssociateCourses" label="是否关联课程" dense hide-details></v-switch>
-                                </v-col>
-                            </v-row>
-                            <v-subheader >关联课程</v-subheader>
-                            <v-divider></v-divider>
-                            <v-row>
-                                <v-col>
-                                    <template v-if="updateItem.Lessons && updateItem.Lessons.length > 0">
-                                        <v-card class="mt-0 mb-0 ml-12 mr-12" outlined>
-                                            <v-row>
-                                                <v-col>
-                                                    <v-simple-table fixed-header class="pl-4 pr-4">
-                                                        <thead>
-                                                            <tr>
-                                                                <th class="text-left">Id</th>
-                                                                <th class="text-left">课程名称</th>
-                                                                <th class="text-left">创建时间</th>
-                                                                <th class="text-left">操作</th>
-                                                            </tr>
-                                                        </thead>
-                                                        <tbody>
-                                                            <template v-if="updateItem.Lessons && updateItem.Lessons.length > 0">
-                                                                <tr v-for="item in updateItem.Lessons" :key="item.Id">
-                                                                    <td>{{ item.Id }}</td>
-                                                                    <td>{{ item.Title }}</td>
-                                                                    <td>{{ item.Created }}</td>
-                                                                    <td>
-                                                                        <v-icon size="20"
-                                                                            color="deep-orange"
-                                                                            @click="lessonDelete(item)">
-                                                                            mdi-delete-forever</v-icon>
-                                                                    </td>
-                                                                </tr>
-                                                            </template>
-                                                        </tbody>
-                                                    </v-simple-table>
-                                                </v-col>
-                                            </v-row>
-                                        </v-card>
-                                    </template>
-                                    <template v-else>
-                                        <v-row>
-                                            <v-col class="d-flex justify-center align-center">
-                                                <span class="ma-4">未添加课程</span>
-                                            </v-col>
-                                        </v-row>
-                                    </template>
+                            <v-tabs-items v-model="tabsSetting.tab">
+                                <v-tab-item :key="1">
                                     <v-row>
-                                        <v-col class="d-flex justify-center align-center">
-                                            <v-btn @click="lessonSelectorShow" small color="light-blue darken-1"  :disabled="!updateItem.HasAssociateCourses">
-                                                <span style="color: white;">添加课程</span>
-                                            </v-btn>
+                                        <v-col cols="12" md="12">
+                                            <v-text-field v-model="updateItem.Title" dense label="名称" placeholder="请输入VIP卡名称"
+                                                :rules="[() => !!updateItem.Title || '不能为空.']" :error-messages="errorMessages"
+                                                ref="Entity_Title">
+                                            </v-text-field>
+                                        </v-col>
+        
+                                    </v-row>
+        
+                                    <v-row>
+                                        <v-col cols="12" md="3">
+                                            <v-text-field v-model="updateItem.DisplayOrder" label="排序" dense placeholder="请输入排序"
+                                                :error-messages="errorMessages" ref="Entity_DisplayOrder" type="number">
+                                            </v-text-field>
+                                        </v-col>
+                                        <v-col cols="12" md="3">
+                                            <v-select :items="statusList" dense label="状态" item-text="Name" item-value="Id"
+                                                placeholder="请选择状态" v-model="updateItem.Status">
+                                            </v-select>
+                                        </v-col>
+                                        <v-col cols="12" md="3">
+                                            <v-switch v-model="updateItem.Enable" label="是否启用" dense></v-switch>
                                         </v-col>
                                     </v-row>
-                                </v-col>
-                            </v-row>
+        
+                                    <v-row>
+                                        <v-col cols="12" md="3">
+                                            <v-text-field v-model="updateItem.TermOfValidity" label="有效期(天)" dense placeholder="请输入有效期"
+                                                :error-messages="errorMessages" ref="EntityTermOfValidity" type="number">
+                                            </v-text-field>
+                                        </v-col>
+                                        <v-col cols="12" md="3">
+                                            <v-text-field v-model="updateItem.Price" label="价格" dense placeholder="请输入价格"
+                                                :error-messages="errorMessages" ref="EntityPrice" type="number">
+                                            </v-text-field>
+                                        </v-col>
+                                        <v-col cols="12" md="3">
+                                            <v-text-field v-model="updateItem.PresentationPoints" label="赠送积分" dense placeholder="请输入赠送积分"
+                                                :error-messages="errorMessages" ref="EntityPresentationPoints" type="number">
+                                            </v-text-field>
+                                        </v-col>
+                                        <v-col cols="12" md="3">
+                                            <v-text-field v-model="updateItem.Discount" label="会员折扣(百分比)" dense placeholder="请输入会员折扣(百分比)"
+                                                :error-messages="errorMessages" ref="EntityDiscount" type="number">
+                                            </v-text-field>
+                                        </v-col>
+                                    </v-row>
+        
+                                    
+        
+                                    <v-subheader >封面</v-subheader>
+                                    <v-divider></v-divider>
+                                    <v-row>
+                                        <v-col cols="12" md="12">
+                                            <v-card outlined class="pr-4 pl-4 pb-4">
+                                                <template>
+                                                    <template
+                                                        v-if="updateItem.ImageThumb_PictureUrl && updateItem.ImageThumb_PictureUrl !== ''">
+                                                        <v-img width="100%" height="200" contain
+                                                            :src="updateItem.ImageThumb_PictureUrl" aspect-ratio="1"
+                                                            ref="Entity_ImageThumb_PictureUrl">
+                                                        </v-img>
+                                                    </template>
+                                                    <template v-else>
+                                                        <div class="d-flex justify-center align-center"
+                                                            style="width: 100%; height: 200px;">
+                                                            <span class="subtitle-1">请选择图片</span>
+                                                        </div>
+                                                    </template>
+                                                    <input type="hidden" v-model="updateItem.ImageThumb_PictureId"
+                                                        ref="Entity_ImageThumb_PictureId" />
+                                                    <div class="d-flex justify-center mt-2">
+                                                        <v-btn
+                                                            @click="pictureSelectorShow('ImageThumb_PictureId', 'ImageThumb_PictureUrl')"
+                                                            class="mr-12" small color="light-blue darken-1" dark>
+                                                            选择图片
+                                                        </v-btn>
+                                                        <v-btn
+                                                            @click="updateItem.ImageThumb_PictureId=0;updateItem.ImageThumb_PictureUrl=''"
+                                                            small color="light-blue darken-1" dark>
+                                                            删除图片
+                                                        </v-btn>
+                                                    </div>
+                                                </template>
+        
+                                            </v-card>
+                                        </v-col>
+        
+                                    </v-row>
+                                </v-tab-item>
 
-                            <v-subheader >封面</v-subheader>
-                            <v-divider></v-divider>
-                            <v-row>
-                                <v-col cols="12" md="12">
-                                    <v-card outlined class="pr-4 pl-4 pb-4">
-                                        <template>
-                                            <template
-                                                v-if="updateItem.ImageThumb_PictureUrl && updateItem.ImageThumb_PictureUrl !== ''">
-                                                <v-img width="100%" height="200" contain
-                                                    :src="updateItem.ImageThumb_PictureUrl" aspect-ratio="1"
-                                                    ref="Entity_ImageThumb_PictureUrl">
-                                                </v-img>
+                                <v-tab-item :key="2">
+                                    <v-row>
+                                        <v-col cols="12" md="12">
+                                            <tinymce ref="editor" v-model="updateItem.Content" />
+                                        </v-col>
+                                    </v-row>
+                                </v-tab-item>
+
+                                <v-tab-item :key="3">
+                                    <!--关联课程-->
+                                    <v-row>
+                                        <v-col class="pt-0 pb-0">
+                                            <v-switch v-model="updateItem.HasAssociateCourses" label="是否关联课程" dense hide-details></v-switch>
+                                        </v-col>
+                                    </v-row>
+                                    <v-subheader >关联课程</v-subheader>
+                                    <v-divider></v-divider>
+                                    <v-row>
+                                        <v-col>
+                                            <template v-if="updateItem.Lessons && updateItem.Lessons.length > 0">
+                                                <v-card class="mt-0 mb-0 ml-12 mr-12" outlined>
+                                                    <v-row>
+                                                        <v-col>
+                                                            <v-simple-table fixed-header class="pl-4 pr-4">
+                                                                <thead>
+                                                                    <tr>
+                                                                        <th class="text-left">Id</th>
+                                                                        <th class="text-left">课程名称</th>
+                                                                        <th class="text-left">创建时间</th>
+                                                                        <th class="text-left">操作</th>
+                                                                    </tr>
+                                                                </thead>
+                                                                <tbody>
+                                                                    <template v-if="updateItem.Lessons && updateItem.Lessons.length > 0">
+                                                                        <tr v-for="item in updateItem.Lessons" :key="item.Id">
+                                                                            <td>{{ item.Id }}</td>
+                                                                            <td>{{ item.Title }}</td>
+                                                                            <td>{{ item.Created }}</td>
+                                                                            <td>
+                                                                                <v-icon size="20"
+                                                                                    color="deep-orange"
+                                                                                    @click="lessonDelete(item)">
+                                                                                    mdi-delete-forever</v-icon>
+                                                                            </td>
+                                                                        </tr>
+                                                                    </template>
+                                                                </tbody>
+                                                            </v-simple-table>
+                                                        </v-col>
+                                                    </v-row>
+                                                </v-card>
                                             </template>
                                             <template v-else>
-                                                <div class="d-flex justify-center align-center"
-                                                    style="width: 100%; height: 200px;">
-                                                    <span class="subtitle-1">请选择图片</span>
-                                                </div>
+                                                <v-row>
+                                                    <v-col class="d-flex justify-center align-center">
+                                                        <span class="ma-4">未添加课程</span>
+                                                    </v-col>
+                                                </v-row>
                                             </template>
-                                            <input type="hidden" v-model="updateItem.ImageThumb_PictureId"
-                                                ref="Entity_ImageThumb_PictureId" />
-                                            <div class="d-flex justify-center mt-2">
-                                                <v-btn
-                                                    @click="pictureSelectorShow('ImageThumb_PictureId', 'ImageThumb_PictureUrl')"
-                                                    class="mr-12" small color="light-blue darken-1" dark>
-                                                    选择图片
-                                                </v-btn>
-                                                <v-btn
-                                                    @click="updateItem.ImageThumb_PictureId=0;updateItem.ImageThumb_PictureUrl=''"
-                                                    small color="light-blue darken-1" dark>
-                                                    删除图片
-                                                </v-btn>
-                                            </div>
-                                        </template>
-
-                                    </v-card>
-                                </v-col>
-
-                            </v-row>
-
-                            <v-subheader class="mt-3">VIP卡说明</v-subheader>
-                            <v-divider></v-divider>
-                            <v-row>
-                                <v-col cols="12" md="12">
-                                    <tinymce ref="editor" v-model="updateItem.Content" />
-                                </v-col>
-                            </v-row>
-
-                            
+                                            <v-row>
+                                                <v-col class="d-flex justify-center align-center">
+                                                    <v-btn @click="lessonSelectorShow" small color="light-blue darken-1"  :disabled="!updateItem.HasAssociateCourses">
+                                                        <span style="color: white;">添加课程</span>
+                                                    </v-btn>
+                                                </v-col>
+                                            </v-row>
+                                        </v-col>
+                                    </v-row>
+                                </v-tab-item>
+                            </v-tabs-items>
                         </v-container>
                     </v-card-text>
 
@@ -283,8 +296,8 @@
                     <v-card-title class="headline"><span class="red--text">警告</span></v-card-title>
                     <v-card-text>
                         <p class="mb-1 subtitle-1 font-weight-bold">是否删除该项目?</p>
-                        <p class="mb-1">名称：{{updateItem.Name}}</p>
-                        <p class="mb-1">描述：{{updateItem.Description}}</p>
+                        <p class="mb-1">Id：{{updateItem.Id}}</p>
+                        <p class="mb-1">标题：{{updateItem.Title}}</p>
                     </v-card-text>
                     <v-card-actions>
                         <v-spacer></v-spacer>
@@ -301,8 +314,8 @@
                     <v-card-text>
                         <p v-if="updateItem.Enable" class="mb-1 subtitle-1 font-weight-bold">是否禁用该项目?</p>
                         <p v-else class="mb-1 subtitle-1 font-weight-bold">是否启用该项目?</p>
-                        <p class="mb-1">名称：{{updateItem.Name}}</p>
-                        <p class="mb-1">描述：{{updateItem.Description}}</p>
+                        <p class="mb-1">Id：{{updateItem.Id}}</p>
+                        <p class="mb-1">标题：{{updateItem.Title}}</p>
                     </v-card-text>
                     <v-card-actions>
                         <v-spacer></v-spacer>
@@ -413,6 +426,11 @@
                     selectedItems: [],
                 },
 
+                //tab 设置
+                tabsSetting: {
+                    tab: null,
+                },
+
                 statusList: ProductStatus,
             }
         },
@@ -478,11 +496,21 @@
                 this.updateItem.ImageThumb_PictureUrl = '';
                 this.updateItem.Status = 1;
 
+                this.tabsSetting.tab = 0;
+                this.updateItem.Lessons = [];
+
                 this.updateDialog.isShow = true;
             },
 
             openEdit: function (item) {
                 this.prepareUpdateItem(item);
+
+                this.tabsSetting.tab = 0;
+                this.updateItem.Lessons = [];
+                //加载已选择的课程
+                if(this.updateItem.HasAssociateCourses) {
+                    this.loadSelectedLesson(item);
+                }
 
                 this.updateDialog.isShow = true;
             },
@@ -667,7 +695,25 @@
 
 
             //加载课程
+            loadSelectedLesson(item) {
+                this.updateItem.Lessons = [];
+                
+                if(item) {
+                    this.getAxios('/api/course/backend/vipcard/GetSelectedLessons', {
+                        vipCardId: item.Id,
+                        pageIndex: 0,
+                        pageSize: 1000,
+                    }).then(res => {
+                        if(res.errorcode === 0) {
+                            this.updateItem.Lessons = res.result.Data;
+                        } else {
 
+                        }
+                    }).catch(error => {
+
+                    });
+                }
+            },
         },
     }
 </script>
