@@ -65,16 +65,10 @@
                                             <v-icon class="mr-4" size="20" color="deep-orange" @click="confirmDelete(item)">
                                                 mdi-delete-forever</v-icon>
                                             <v-btn small outlined color="primary" class="mr-4" @click="gotoCDKey(item)">
-                                                卡密
-                                            </v-btn>
-                                            <v-btn small outlined color="primary" class="mr-4" @click="gotoCDKeyHistory(item)">
-                                                卡密日志
-                                            </v-btn>
-                                            <v-btn small outlined color="primary" class="mr-4" @click="gotoHistory(item)">
-                                                使用日志
+                                                日志
                                             </v-btn>
                                             <v-btn small outlined color="primary" class="mr-4" @click="gotoIssuanceRule(item)">
-                                                发放规则
+                                                发放
                                             </v-btn>
                                         </td>
                                     </tr>
@@ -122,6 +116,7 @@
                             <v-tab :key="4">兑换信息</v-tab>
                             <v-tab :key="5">有效期限</v-tab>
                             <v-tab :key="6">适用范围</v-tab>
+                            <v-tab :key="7">显示设置</v-tab>
                         </v-tabs>
 
                         <v-tabs-items v-model="tabsSetting.tab">
@@ -577,6 +572,32 @@
                                     </template>
                                 </v-container>
                             </v-tab-item>
+
+                            <!--显示设置-->
+                            <v-tab-item :key="7">
+                                <v-container>
+                                    <v-row>
+                                        <v-col cols="12" md="6">
+                                            <v-switch v-model="updateItem.IsShow" label="是否显示" dense></v-switch>
+                                        </v-col>
+                                    </v-row>
+                                    <v-row>
+                                        <v-col cols="12" md="6">
+                                            <v-switch v-model="updateItem.IsHomePage" label="是否在首页显示" dense></v-switch>
+                                        </v-col>
+                                    </v-row>
+                                    <v-row>
+                                        <v-col cols="12" md="6">
+                                            <v-switch v-model="updateItem.IsHot" label="是否启用Hot标签" dense></v-switch>
+                                        </v-col>
+                                    </v-row>
+                                    <v-row>
+                                        <v-col cols="12" md="6">
+                                            <v-switch v-model="updateItem.IsNew" label="是否启用New标签" dense></v-switch>
+                                        </v-col>
+                                    </v-row>
+                                </v-container>
+                            </v-tab-item>
                         </v-tabs-items>
 
                     </v-card-text>
@@ -724,6 +745,10 @@
                     ExchangedQuantity: 0, //已兑换数量
                     ExchangeQuantityByPerPerson: 0, //每个用户可兑换数量
                     AppliedToType: 0, //优惠券适用类型
+                    IsShow: true,
+                    IsHomePage: false,
+                    IsHot: false,
+                    IsNew: false,
 
                     AppliedToLessons: [],
                     AppliedToLecturers: [],
@@ -880,6 +905,10 @@
                 this.updateItem.ExchangedQuantity = item.ExchangedQuantity; //已兑换数量
                 this.updateItem.ExchangeQuantityByPerPerson = item.ExchangeQuantityByPerPerson; //每个用户可兑换数量
                 this.updateItem.AppliedToType = item.AppliedToType; //优惠券适用类型
+                this.updateItem.IsShow = item.IsShow;
+                this.updateItem.IsHomePage = item.IsHomePage;
+                this.updateItem.IsHot = item.IsHot;
+                this.updateItem.IsNew = item.IsNew;
             },
 
             openCreate: function () {
@@ -892,7 +921,7 @@
                 this.updateItem.ImageThumb_PictureId = 0;
                 this.updateItem.ImageThumb_PictureUrl = '';
                 this.updateItem.Status = 1;
-                this.updateItem.DisplayOrder = 0;
+                this.updateItem.DisplayOrder = 1;
                 this.updateItem.BeginTime = ''; //开始时间
                 this.updateItem.EndTime = ''; //结束时间
                 this.updateItem.CouponType = 1; //优惠券类型
@@ -910,6 +939,10 @@
                 this.updateItem.ExchangedQuantity = 0; //已兑换数量
                 this.updateItem.ExchangeQuantityByPerPerson = 1; //每个用户可兑换数量
                 this.updateItem.AppliedToType = 1; //优惠券适用类型
+                this.updateItem.IsShow = true;
+                this.updateItem.IsHomePage = false;
+                this.updateItem.IsHot = false;
+                this.updateItem.IsNew = false;
 
                 //初始化时间
                 let begindate = new Date();
@@ -1247,28 +1280,6 @@
 
                 this.$router.push({
                     name: 'CouponCDKeyManage',
-                    params: { id: item.Id },
-                });
-            },
-
-            gotoHistory(item) {
-                if (!item) {
-                    return;
-                }
-
-                this.$router.push({
-                    name: 'CouponHistory',
-                    params: { id: item.Id },
-                });
-            },
-
-            gotoCDKeyHistory(item) {
-                if (!item) {
-                    return;
-                }
-
-                this.$router.push({
-                    name: 'CouponCDKeyHistory',
                     params: { id: item.Id },
                 });
             },

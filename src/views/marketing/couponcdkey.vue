@@ -66,7 +66,9 @@
                                 <tr>
                                     <th class="text-left">卡号</th>
                                     <th class="text-left">密码</th>
-                                    <th class="text-left">已使用</th>
+                                    <th class="text-left">是否领取</th>
+                                    <th class="text-left">是否使用</th>
+                                    <th class="text-left">所属人</th>
                                     <th class="text-left">状态</th>
                                     <th class="text-left">操作</th>
                                 </tr>
@@ -84,6 +86,15 @@
                                                 <span class="unused-text">未使用</span>
                                             </template>
                                         </td>
+                                        <td>
+                                            <template v-if="item.Received">
+                                                <span class="used-text">已领取</span>
+                                            </template>
+                                            <template v-else>
+                                                <span class="unused-text">未领取</span>
+                                            </template>
+                                        </td>
+                                        <td>{{ item.OwnerNickName }}</td>
                                         <td>
                                             <v-icon size="20" v-if="!item.Enable" @click="confirmSetEnable(item)"
                                                 color="red lighten-2">
@@ -156,6 +167,8 @@
                     </v-card-actions>
                 </v-card>
             </v-dialog>
+
+            <!--自动生成卡密-->
 
             <!--删除-->
             <v-dialog v-model="deleteDialog" persistent max-width="640">
@@ -243,6 +256,15 @@
                     CardNumber: '',
                     CardPassword: '',
                     Used: false,
+                    UseTime: '',
+                    Received: false,
+                    ReceiveTime: '',
+                    UserId: null,
+                    Status: 0,
+                    CouponIssuanceRulesId: null,
+
+                    OwnerAccount: '',
+                    OwnerNickName: '',
                 },
 
                 couponItem: {
@@ -273,6 +295,10 @@
                     ExchangedQuantity: 0, //已兑换数量
                     ExchangeQuantityByPerPerson: 0, //每个用户可兑换数量
                     AppliedToType: 0, //优惠券适用类型
+                    IsShow: true,
+                    IsHomePage: false,
+                    IsHot: false,
+                    IsNew: false,
                 },
 
 
@@ -342,6 +368,14 @@
                 this.updateItem.CardNumber = item.CardNumber;
                 this.updateItem.CardPassword = item.CardPassword;
                 this.updateItem.Used = item.Used;
+                this.updateItem.UseTime = item.UseTime;
+                this.updateItem.Received = item.Received;
+                this.updateItem.ReceiveTime = item.ReceiveTime;
+                this.updateItem.UserId = item.UserId;
+                this.updateItem.Status = item.Status;
+                this.updateItem.CouponIssuanceRulesId = item.CouponIssuanceRulesId;
+                this.updateItem.OwnerAccount = item.OwnerAccount;
+                this.updateItem.OwnerNickName = item.OwnerNickName;
             },
 
             openCreate: function () {
@@ -356,6 +390,14 @@
                 this.updateItem.CardNumber = '';
                 this.updateItem.CardPassword = ''; 
                 this.updateItem.Used = false; 
+                this.updateItem.UseTime = '';
+                this.updateItem.Received = false;
+                this.updateItem.ReceiveTime = '';
+                this.updateItem.UserId = null;
+                this.updateItem.Status = 0;
+                this.updateItem.CouponIssuanceRulesId = null;
+                this.updateItem.OwnerAccount = '';
+                this.updateItem.OwnerNickName = '';
 
                 this.updateDialog.isShow = true;
             },

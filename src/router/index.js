@@ -226,12 +226,6 @@ const router = new Router({
                     component: () => import(/* webpackChunkName: "role" */ "@/views/marketing/couponhistory.vue")
                 },
                 {
-                    path: "/marketing/coupon/cdkeyhistory/:id",
-                    name: "CouponCDKeyHistory",
-                    meta: { title: "优惠券卡密日志", group: "apps", icon: "dashboard" },
-                    component: () => import(/* webpackChunkName: "role" */ "@/views/marketing/couponcdkeyhistory.vue")
-                },
-                {
                     path: "/marketing/coupon/rule/:id",
                     name: "CouponRule",
                     meta: { title: "优惠券发放规则", group: "apps", icon: "dashboard" },
