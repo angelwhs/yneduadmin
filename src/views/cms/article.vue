@@ -128,140 +128,207 @@
                         </v-toolbar>
 
                         <v-card-text class="dialog--scroll">
-                            <v-container>
+                            <v-tabs background-color="white" color="primary " v-model="tabsSetting.tab">
+                                <v-tabs-slider></v-tabs-slider>
+                                <v-tab :key="1">基本信息</v-tab>
+                                <v-tab :key="2">文章内容</v-tab>
+                                <v-tab :key="3">微信分享</v-tab>
+                            </v-tabs>
 
-                                <v-row>
-                                    <v-text-field v-model="updateItem.Title" label="标题"
-                                        :rules="[() => !!updateItem.Title || '不能为空.']" :error-messages="errorMessages"
-                                        ref="Entity_Title" placeholder="请输入文章标题">
-                                    </v-text-field>
-                                </v-row>
-                                <v-row>
-                                    <v-col cols="12" md="6">
-                                        <el-cascader :options="searchArticleContentSectionResult.list" clearable
-                                            v-model="selectedContentSections" :props="contentSectionSelectProps"
-                                            style="width: 100%;" placeholder="请选择栏目" ref="contentSectionSelector">
-                                        </el-cascader>
-                                    </v-col>
-                                    <v-col cols="12" md="6">
-                                        <v-combobox label="标签" placeholder="请选择标签" v-model="updateItem.ArticleTags"
-                                            outlined hide-details dense multiple chips clearable return-object
-                                            :items="searchArticleTagResult.list" item-text="Name"
-                                            :filters="articleTagFilter">
-                                            <template v-slot:selection="{ attrs, item, parent, selected }">
-                                                <v-chip v-if="item === Object(item)" v-bind="attrs"
-                                                    :input-value="selected" label small>
-                                                    <span class="pr-2"> {{ item.Name }} </span>
-                                                    <v-icon small @click="parent.selectItem(item)">close</v-icon>
-                                                </v-chip>
-                                            </template>
-                                        </v-combobox>
-                                    </v-col>
-                                </v-row>
-                                <v-row>
-                                    <v-col cols="12" md="3">
-                                        <v-switch v-model="updateItem.IsPublish" label="是否发布"></v-switch>
-                                    </v-col>
-                                    <v-col cols="12" md="3">
+                            <v-tabs-items  v-model="tabsSetting.tab">
+                                <!--基本信息-->
+                                <v-tab-item :key="1">
+                                    <v-container>
+                                        <v-row>
+                                            <v-text-field v-model="updateItem.Title" label="标题"
+                                                :rules="[() => !!updateItem.Title || '不能为空.']" :error-messages="errorMessages"
+                                                ref="Entity_Title" placeholder="请输入文章标题">
+                                            </v-text-field>
+                                        </v-row>
+                                        <v-row>
+                                            <v-col cols="12" md="6">
+                                                <el-cascader :options="searchArticleContentSectionResult.list" clearable
+                                                    v-model="selectedContentSections" :props="contentSectionSelectProps"
+                                                    style="width: 100%;" placeholder="请选择栏目" ref="contentSectionSelector">
+                                                </el-cascader>
+                                            </v-col>
+                                            <v-col cols="12" md="6">
+                                                <v-combobox label="标签" placeholder="请选择标签" v-model="updateItem.ArticleTags"
+                                                    outlined hide-details dense multiple chips clearable return-object
+                                                    :items="searchArticleTagResult.list" item-text="Name"
+                                                    :filters="articleTagFilter">
+                                                    <template v-slot:selection="{ attrs, item, parent, selected }">
+                                                        <v-chip v-if="item === Object(item)" v-bind="attrs"
+                                                            :input-value="selected" label small>
+                                                            <span class="pr-2"> {{ item.Name }} </span>
+                                                            <v-icon small @click="parent.selectItem(item)">close</v-icon>
+                                                        </v-chip>
+                                                    </template>
+                                                </v-combobox>
+                                            </v-col>
+                                        </v-row>
+                                        <v-row>
+                                            <v-col cols="12" md="3">
+                                                <v-switch v-model="updateItem.IsPublish" label="是否发布"></v-switch>
+                                            </v-col>
+                                            <v-col cols="12" md="3">
+        
+                                            </v-col>
+                                            <v-col cols="12" md="3">
+                                                <v-text-field v-model="updateItem.Author" label="作者" dense
+                                                    :error-messages="errorMessages" ref="Entity_Author">
+                                                </v-text-field>
+                                            </v-col>
+                                            <v-col cols="12" md="3">
+                                                <v-text-field v-model="updateItem.Sort" label="排序" dense
+                                                    :error-messages="errorMessages" ref="Entity_Sort" type="number">
+                                                </v-text-field>
+                                            </v-col>
+                                        </v-row>
+                                        <v-row>
+                                            <v-col cols="12" md="2">
+                                                <v-switch v-model="updateItem.IsLink" label="是否转向链接" dense></v-switch>
+                                            </v-col>
+                                            <v-col cols="12" md="10">
+                                                <v-text-field v-model="updateItem.LinkUrl" label="链接地址" dense
+                                                    :error-messages="errorMessages" ref="Entity_LinkUrl"
+                                                    :disabled="!updateItem.IsLink">
+                                                </v-text-field>
+                                            </v-col>
+                                        </v-row>
+                                        <v-row>
+                                            <v-col cols="12" md="12">
+                                                <v-text-field v-model="updateItem.MetaKeyWords" label="关键字" dense
+                                                    :error-messages="errorMessages" ref="Entity_MetaKeyWords">
+                                                </v-text-field>
+                                            </v-col>
+                                        </v-row>
+                                        <v-row>
+                                            <v-col cols="12" md="12">
+                                                <v-text-field v-model="updateItem.Summary" label="简介" dense
+                                                    :error-messages="errorMessages" ref="Entity_Summary">
+                                                </v-text-field>
+                                            </v-col>
+                                        </v-row>
+                                        <v-row>
+                                            <v-col cols="12" md="3">
+                                                <v-switch v-model="updateItem.AllowComments" label="是否允许评论" dense></v-switch>
+                                            </v-col>
+                                            <v-col cols="12" md="3">
+                                                <v-switch v-model="updateItem.AllowLike" label="是否允许点赞" dense></v-switch>
+                                            </v-col>
+                                            <v-col cols="12" md="3">
+                                                <v-text-field v-model="updateItem.InitLikeCount" label="初始点赞数" dense
+                                                    :error-messages="errorMessages" ref="Entity_InitLikeCount" type="number">
+                                                </v-text-field>
+                                            </v-col>
+                                            <v-col cols="12" md="3">
+                                                <v-text-field v-model="updateItem.InitShareCount" label="初始分享数" dense
+                                                    :error-messages="errorMessages" ref="Entity_InitShareCount" type="number">
+                                                </v-text-field>
+                                            </v-col>
+                                        </v-row>
+                                        <v-subheader class="mt-3">封面图片</v-subheader>
+                                        <v-divider></v-divider>
+                                        <v-row>
+                                            <v-col cols="12" md="12">
+                                                <v-card outlined class="pr-4 pl-4 pb-4 pt-4">
+                                                    <template
+                                                        v-if="updateItem.ImageThumb_PictureUrl && updateItem.ImageThumb_PictureUrl !== ''">
+                                                        <v-img width="100%" height="200" contain
+                                                            :src="updateItem.ImageThumb_PictureUrl" aspect-ratio="1"
+                                                            ref="Entity_ImageThumb_PictureUrl">
+                                                        </v-img>
+                                                    </template>
+                                                    <template v-else>
+                                                        <div class="d-flex justify-center align-center"
+                                                            style="width: 100%; height: 200px;">
+                                                            <span class="subtitle-1">请选择图片</span>
+                                                        </div>
+                                                    </template>
+                                                    <input type="hidden" v-model="updateItem.ImageThumb_PictureId"
+                                                        ref="ImageThumb_PictureId" />
+                                                    <div class="d-flex justify-center mt-2">
+                                                        <v-btn
+                                                            @click="pictureSelectorShow('ImageThumb_PictureId', 'ImageThumb_PictureUrl')"
+                                                            class="mr-12" small color="light-blue darken-1" dark>
+                                                            选择图片
+                                                        </v-btn>
+                                                        <v-btn
+                                                            @click="updateItem.ImageThumb_PictureId=0;updateItem.ImageThumb_PictureUrl=''"
+                                                            small color="light-blue darken-1" dark>
+                                                            删除图片
+                                                        </v-btn>
+                                                    </div>
+                                                </v-card>
+                                            </v-col>
+                                        </v-row>
+                                    </v-container>
+                                </v-tab-item>
 
-                                    </v-col>
-                                    <v-col cols="12" md="3">
-                                        <v-text-field v-model="updateItem.Author" label="作者" dense
-                                            :error-messages="errorMessages" ref="Entity_Author">
-                                        </v-text-field>
-                                    </v-col>
-                                    <v-col cols="12" md="3">
-                                        <v-text-field v-model="updateItem.Sort" label="排序" dense
-                                            :error-messages="errorMessages" ref="Entity_Sort" type="number">
-                                        </v-text-field>
-                                    </v-col>
-                                </v-row>
-                                <v-row>
-                                    <v-col cols="12" md="2">
-                                        <v-switch v-model="updateItem.IsLink" label="是否转向链接" dense></v-switch>
-                                    </v-col>
-                                    <v-col cols="12" md="10">
-                                        <v-text-field v-model="updateItem.LinkUrl" label="链接地址" dense
-                                            :error-messages="errorMessages" ref="Entity_LinkUrl"
-                                            :disabled="!updateItem.IsLink">
-                                        </v-text-field>
-                                    </v-col>
-                                </v-row>
-                                <v-row>
-                                    <v-col cols="12" md="12">
-                                        <v-text-field v-model="updateItem.MetaKeyWords" label="关键字" dense
-                                            :error-messages="errorMessages" ref="Entity_MetaKeyWords">
-                                        </v-text-field>
-                                    </v-col>
-                                </v-row>
-                                <v-row>
-                                    <v-col cols="12" md="12">
-                                        <v-text-field v-model="updateItem.Summary" label="简介" dense
-                                            :error-messages="errorMessages" ref="Entity_Summary">
-                                        </v-text-field>
-                                    </v-col>
-                                </v-row>
-                                <v-row>
-                                    <v-col cols="12" md="3">
-                                        <v-switch v-model="updateItem.AllowComments" label="是否允许评论" dense></v-switch>
-                                    </v-col>
-                                    <v-col cols="12" md="3">
-                                        <v-switch v-model="updateItem.AllowLike" label="是否允许点赞" dense></v-switch>
-                                    </v-col>
-                                    <v-col cols="12" md="3">
-                                        <v-text-field v-model="updateItem.InitLikeCount" label="初始点赞数" dense
-                                            :error-messages="errorMessages" ref="Entity_InitLikeCount" type="number">
-                                        </v-text-field>
-                                    </v-col>
-                                    <v-col cols="12" md="3">
-                                        <v-text-field v-model="updateItem.InitShareCount" label="初始分享数" dense
-                                            :error-messages="errorMessages" ref="Entity_InitShareCount" type="number">
-                                        </v-text-field>
-                                    </v-col>
-                                </v-row>
-                                <v-subheader class="mt-3">封面图片</v-subheader>
-                                <v-divider></v-divider>
-                                <v-row>
-                                    <v-col cols="12" md="12">
-                                        <v-card outlined class="pr-4 pl-4 pb-4 pt-4">
-                                            <template
-                                                v-if="updateItem.ImageThumb_PictureUrl && updateItem.ImageThumb_PictureUrl !== ''">
-                                                <v-img width="100%" height="200" contain
-                                                    :src="updateItem.ImageThumb_PictureUrl" aspect-ratio="1"
-                                                    ref="Entity_ImageThumb_PictureUrl">
-                                                </v-img>
-                                            </template>
-                                            <template v-else>
-                                                <div class="d-flex justify-center align-center"
-                                                    style="width: 100%; height: 200px;">
-                                                    <span class="subtitle-1">请选择图片</span>
-                                                </div>
-                                            </template>
-                                            <input type="hidden" v-model="updateItem.ImageThumb_PictureId"
-                                                ref="ImageThumb_PictureId" />
-                                            <div class="d-flex justify-center mt-2">
-                                                <v-btn
-                                                    @click="pictureSelectorShow('ImageThumb_PictureId', 'ImageThumb_PictureUrl')"
-                                                    class="mr-12" small color="light-blue darken-1" dark>
-                                                    选择图片
-                                                </v-btn>
-                                                <v-btn
-                                                    @click="updateItem.ImageThumb_PictureId=0;updateItem.ImageThumb_PictureUrl=''"
-                                                    small color="light-blue darken-1" dark>
-                                                    删除图片
-                                                </v-btn>
-                                            </div>
-                                        </v-card>
-                                    </v-col>
-                                </v-row>
-                                <v-subheader class="mt-3">文章内容</v-subheader>
-                                <v-divider></v-divider>
-                                <v-row>
-                                    <v-col cols="12" md="12">
-                                        <tinymce ref="editor" v-model="updateItem.ArticleContent" />
-                                    </v-col>
-                                </v-row>
-                            </v-container>
+                                <!--文章内容-->
+                                <v-tab-item :key="2">
+                                    <v-container>
+                                        <v-row>
+                                            <v-col cols="12" md="12">
+                                                <tinymce ref="editor" v-model="updateItem.ArticleContent" />
+                                            </v-col>
+                                        </v-row>
+                                    </v-container>
+                                </v-tab-item>
+
+                                <!--微信分享-->
+                                <v-tab-item :key="3">
+                                    <v-container>
+                                        <v-col cols="12" md="3">
+                                            <v-text-field v-model="updateItem.WechatShareTitle" label="微信分享标题" dense
+                                                :error-messages="errorMessages" ref="EntityWechatShareTitle">
+                                            </v-text-field>
+                                        </v-col>
+                                        <v-col cols="12" md="3">
+                                            <v-text-field v-model="updateItem.WechatShareDescription" label="微信分享描述" dense
+                                                :error-messages="errorMessages" ref="EntityWechatShareDescription">
+                                            </v-text-field>
+                                        </v-col>
+                                        <v-subheader class="mt-3">封面图片</v-subheader>
+                                        <v-divider></v-divider>
+                                        <v-row>
+                                            <v-col cols="12" md="12">
+                                                <v-card outlined class="pr-4 pl-4 pb-4 pt-4">
+                                                    <template
+                                                        v-if="updateItem.WechatShareImgUrl && updateItem.WechatShareImgUrl !== ''">
+                                                        <v-img width="100%" height="200" contain
+                                                            :src="updateItem.WechatShareImgUrl" aspect-ratio="1"
+                                                            ref="EntityWechatShareImgUrl">
+                                                        </v-img>
+                                                    </template>
+                                                    <template v-else>
+                                                        <div class="d-flex justify-center align-center"
+                                                            style="width: 100%; height: 200px;">
+                                                            <span class="subtitle-1">请选择图片</span>
+                                                        </div>
+                                                    </template>
+                                                    <input type="hidden" v-model="updateItem.WechatShareImg"
+                                                        ref="WechatShareImg" />
+                                                    <div class="d-flex justify-center mt-2">
+                                                        <v-btn
+                                                            @click="pictureSelectorShow('WechatShareImg', 'WechatShareImgUrl')"
+                                                            class="mr-12" small color="light-blue darken-1" dark>
+                                                            选择图片
+                                                        </v-btn>
+                                                        <v-btn
+                                                            @click="updateItem.WechatShareImg=0;updateItem.WechatShareImgUrl=''"
+                                                            small color="light-blue darken-1" dark>
+                                                            删除图片
+                                                        </v-btn>
+                                                    </div>
+                                                </v-card>
+                                            </v-col>
+                                        </v-row>
+                                    </v-container>
+                                </v-tab-item>
+                            </v-tabs-items>
+
                         </v-card-text>
                     </v-card>
 
@@ -475,6 +542,10 @@
                     ArticleTags: [],
                     ContentSections: [],
                     AuditStatus: 0,
+                    WechatShareDescription: '',
+                    WechatShareImg: 0,
+                    WechatShareTitle: '',
+                    WechatShareImgUrl: '',
                 },
 
                 updateDialog: {
@@ -524,6 +595,12 @@
                         Reason: '',
                     },
                 },
+
+                //tab 设置
+                tabsSetting: {
+                    tab: null,
+                },
+
             }
         },
 
@@ -585,6 +662,10 @@
                 this.updateItem.ArticleTags = item.ArticleTags;
                 this.updateItem.ContentSections = item.ContentSections;
                 this.updateItem.AuditStatus = item.AuditStatus;
+                this.updateItem.WechatShareDescription = item.WechatShareDescription;
+                this.updateItem.WechatShareImg = item.WechatShareImg;
+                this.updateItem.WechatShareTitle = item.WechatShareTitle;
+                this.updateItem.WechatShareImgUrl = item.WechatShareImgUrl;
 
                 //加载栏目combobox已选栏目数据
                 this.selectedContentSections = [];
@@ -641,8 +722,14 @@
                 this.updateItem.MetaKeyWords = '';
                 this.updateItem.ArticleTags = [];
                 this.updateItem.ContentSections = [];
+                this.updateItem.WechatShareDescription = '';
+                this.updateItem.WechatShareImg = 0;
+                this.updateItem.WechatShareTitle = '';
+                this.updateItem.WechatShareImgUrl = '';
 
                 this.selectedContentSections = [];
+
+                this.tabsSetting.tab = 0;
 
                 this.updateDialog.isShow = true;
             },
@@ -657,6 +744,7 @@
                     if (data.errorcode === 0) {
                         let article = data.result;
                         this.prepareUpdateItem(article);
+                        this.tabsSetting.tab = 0;
                         this.updateDialog.isShow = true;
                     } else {
                         this.$toast.error('获取文章数据失败,请重试.</br>' + data.errormsg, { x: 'center', y: 'top', timeout: 2000, showClose: true, });

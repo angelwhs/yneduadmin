@@ -294,6 +294,7 @@
                 paymentTypeList: [
                     {Id: 1, Name: '微信支付'},
                     {Id: 2, Name: '支付宝'},
+                    {Id: 3, Name: '商城币'},
                 ],
             }
         },
@@ -475,6 +476,9 @@
                         break;
                     case 2:
                         name = '支付宝';
+                        break;
+                    case 3:
+                        name = '商城币';
                         break;
                     default:
                         break;
