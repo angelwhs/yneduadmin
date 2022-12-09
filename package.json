@@ -20,7 +20,7 @@
     "js-cookie": "^2.2.1",
     "perfect-scrollbar": "^1.4.0",
     "qs": "^6.9.1",
-    "tinymce": "^5.1.5",
+    "tinymce": "^5.10.7",
     "vue": "^2.6.10",
     "vue-axios": "^2.1.5",
     "vue-nice-loading": "^1.0.4",
